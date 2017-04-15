@@ -19,6 +19,7 @@ This is done with the following commands:<br />
 `git init`<br />
 `git remote add origin https://github.com/RubenPera/SecureWebApp`<br />
 `git fetch`<br />
+`rm .gitignore conf/SecureWebApp.conf src/SecureWebApp.c`<br />
 `git checkout -t origin/master`<br />
 
 Then use `kodev run ` to start the application.
