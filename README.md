@@ -17,7 +17,7 @@ Because of this you should first create a project using kore.io and then import 
 You use checkout the files of this project into this folder.<br />
 This is done with the following commands:<br />
 `git init`<br />
-`git remote add origin PATH/TO/REPO`<br />
+`git remote add origin https://github.com/RubenPera/SecureWebApp`<br />
 `git fetch`<br />
 `git checkout -t origin/master`<br />
 
