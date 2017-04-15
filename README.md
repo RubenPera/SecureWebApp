@@ -1,5 +1,6 @@
 # SecureWebApp
 
+## Intro
 For this project the library kore.io is used. 
 It is **strongly adviced** to follow the install tutorial on github of kore.io
 https://github.com/jorisvink/kore
@@ -23,5 +24,14 @@ This is done with the following commands:<br />
 `git checkout -t origin/master`<br />
 
 Then use `kodev run ` to start the application.
+
+## Known Errors
+
+If the command kodev run gives an error like:
+`" on line xx`<br />
+This is due the line ending being a windows line ending instead of an Unix line ending. 
+
+Use the command <br />
+`dos2unix SecureWebApp.conf`
 
 
