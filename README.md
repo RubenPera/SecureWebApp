@@ -11,9 +11,16 @@ Because kore.io doesnt work well with projects pulled from git only the followin
 
 Because of this you should first create a project using kore.io and then import the github files into this project.
 
-`kodev create SecureWebApp`
-`cd SecureWebApp/`
+`kodev create SecureWebApp`<br />
+`cd SecureWebApp/` <br />
 
-You use checkout the files of this project into this folder.
+You use checkout the files of this project into this folder.<br />
+This is done with the following commands:<br />
+`git init`<br />
+`git remote add origin PATH/TO/REPO`<br />
+`git fetch`<br />
+`git checkout -t origin/master`<br />
 
 Then use `kodev run ` to start the application.
+
+
