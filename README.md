@@ -27,7 +27,7 @@ Then use `kodev run ` to start the application.
 
 ## Known Errors
 
-If the command kodev run gives an error like:
+If the command kodev run gives an error like: <br />
 `" on line xx`<br />
 This is due the line ending being a windows line ending instead of an Unix line ending. 
 
