@@ -15,7 +15,7 @@
 #include <openssl/sha.h>
 
 
-const char * htmlEnd = "    </script></body></html>";
+const char * htmlEnd = "</script></body></html>";
 
 int	page(struct http_request *);
 int login(struct http_request *);
@@ -24,7 +24,7 @@ void readHtmlFileIntoBuffer(struct kore_buf * buffer, char * htmlPage, char * vu
 int page(struct http_request *req)
 {
 	struct kore_buf	*buffer;
-
+	kore_log(2, "HELP");
 	http_populate_get(req);
 	buffer = kore_buf_alloc(128);
 

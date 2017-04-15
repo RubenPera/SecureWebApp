@@ -1,3 +1,11 @@
+# Specifies what files should not be included in git
+
+# Folders
+.vs/
+Debug/
+
+
+# Kore files
 *.o
 .flavor
 .objs
@@ -7,4 +15,10 @@ cert
 conf/build.conf
 dh2048.pem
 kore.pid
-.vs/
+
+
+# Visual studio files
+SecureWebApp.sln
+SecureWebApp.vcxproj
+SecureWebApp.vcxproj.filters
+
