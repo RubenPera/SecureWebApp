@@ -21,12 +21,10 @@ const char * htmlEnd = "</script></body></html>";
 
 int	page(struct http_request *);
 int login(struct http_request *);
-void readHtmlFileIntoBuffer(struct kore_buf * buffer, char * htmlPage, char * vueValue);
 
 int page(struct http_request *req)
 {
 	struct kore_buf	*buffer;
-	kore_log(2, "HELP");
 	http_populate_get(req);
 
 	buffer = kore_buf_alloc(asset_len_Index_html);
@@ -65,17 +63,37 @@ int login(struct http_request *req)
 		http_argument_get_string(req, "firstname", &firstName);
 		http_argument_get_string(req, "lastname", &lastName);
 
-		buffer = kore_buf_alloc(asset_len_Index_html);
-		kore_buf_append(buffer, asset_Index_html, asset_len_Index_html);
+		buffer = kore_buf_alloc(asset_len_MasterPage_html);
+		kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
-		kore_buf_replace_string(buffer, "$firstname$", firstName, strlen(firstName));
+		kore_buf_replace_string(buffer, "$body$", asset_Login_html, asset_len_Login_html);
+
+		char * script = "var page = new Vue({ \
+							el: '#error', \
+							data : { \
+							visible: true \
+							} \
+							}) \
+							";
+		kore_buf_replace_string(buffer, "$script$", script, strlen(script));
 
 		http_response(req, 200, buffer->data, buffer->offset);
 		return (KORE_RESULT_OK);
 	}
 	else {
-		buffer = kore_buf_alloc(asset_len_Login_html);
-		kore_buf_append(buffer, asset_Login_html, asset_len_Login_html);
+		buffer = kore_buf_alloc(asset_len_MasterPage_html);
+		kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+
+		kore_buf_replace_string(buffer, "$body$", asset_Login_html, asset_len_Login_html);
+
+		char * script = "var page = new Vue({ \
+							el: '#error', \
+							data : { \
+							visible: false \
+							} \
+							}) \
+							";
+		kore_buf_replace_string(buffer, "$script$", script, strlen(script));
 
 		http_response(req, 200, buffer->data, buffer->offset);
 		return (KORE_RESULT_OK);
