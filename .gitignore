@@ -18,7 +18,9 @@ kore.pid
 
 
 # Visual studio files
-SecureWebApp.sln
-SecureWebApp.vcxproj
-SecureWebApp.vcxproj.filters
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
 
