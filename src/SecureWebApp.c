@@ -9,6 +9,8 @@
 #include <http.h>
 #endif
 
+#include "assets.h"
+#include <mysql/mysql.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
@@ -41,6 +43,24 @@ int login(struct http_request *req)
 	char			*firstName;
 	char * lastName;
 
+	MYSQL *conn;
+   	MYSQL_RES *res;
+   	MYSQL_ROW row;
+
+   char *server = "172.0.0.1";
+   char *user = "root";
+   char *password = "root"; /* set me first */
+   char *database = "mysql";
+
+   conn = mysql_init(NULL);
+
+   /* Connect to database */
+   if (! mysql_real_connect(conn, server,
+         user, password, database, 3306, NULL, 0)) {
+      fprintf(stderr, "%s\n", mysql_error(conn));
+      exit(1);
+   }
+
 	buffer = kore_buf_alloc(128);
 	kore_log(2, "test");
 
@@ -53,14 +73,12 @@ int login(struct http_request *req)
 		kore_log(2, firstName);
 		kore_log(2, lastName);
 
-		char * temp = "var app = new Vue({ \
-		el: '#app', \
-			data : { \
-		messagetest: 'Hello World', \
-			test : 'hello GLENNOS' \
-		} \
-		})";
-		http_response(req, 200, firstName, strlen(firstName));
+		buffer = kore_buf_alloc(asset_len_Index_html);
+		kore_buf_append(buffer, asset_Index_html, asset_len_Index_html);
+
+		kore_buf_replace_string(buffer, "$firstname$", firstName, strlen(firstName));
+
+		http_response(req, 200, buffer->data, buffer->offset);
 		return (KORE_RESULT_OK);
 	}
 	else {
