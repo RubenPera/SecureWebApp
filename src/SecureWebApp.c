@@ -10,7 +10,7 @@
 #endif
 
 #include "assets.h"
-#include <mysql/mysql.h>
+//#include <mysql/mysql.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
@@ -43,23 +43,23 @@ int login(struct http_request *req)
 	char			*firstName;
 	char * lastName;
 
-	MYSQL *conn;
-   	MYSQL_RES *res;
-   	MYSQL_ROW row;
+	//MYSQL *conn;
+ //  	MYSQL_RES *res;
+ //  	MYSQL_ROW row;
 
-   char *server = "172.0.0.1";
-   char *user = "root";
-   char *password = "root"; /* set me first */
-   char *database = "mysql";
+ //  char *server = "172.0.0.1";
+ //  char *user = "root";
+ //  char *password = "root"; /* set me first */
+ //  char *database = "mysql";
 
-   conn = mysql_init(NULL);
+ //  conn = mysql_init(NULL);
 
-   /* Connect to database */
-   if (! mysql_real_connect(conn, server,
-         user, password, database, 3306, NULL, 0)) {
-      fprintf(stderr, "%s\n", mysql_error(conn));
-      exit(1);
-   }
+ //  /* Connect to database */
+ //  if (! mysql_real_connect(conn, server,
+ //        user, password, database, 3306, NULL, 0)) {
+ //     fprintf(stderr, "%s\n", mysql_error(conn));
+ //     exit(1);
+ //  }
 
 	buffer = kore_buf_alloc(128);
 	kore_log(2, "test");
