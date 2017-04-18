@@ -60,7 +60,6 @@ int login(struct http_request *req)
  //     exit(1);
  //  }
 	if (req->method == HTTP_METHOD_POST) {
-		http_populate_get(req);
 
 		http_populate_post(req);
 		http_argument_get_string(req, "firstname", &firstName);
