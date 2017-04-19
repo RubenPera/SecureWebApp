@@ -1,3 +1,5 @@
+
+
 typedef struct
 {
 	char * email;
@@ -6,6 +8,8 @@ typedef struct
 	char * regex_password;
 
 } LoginFormModel;
+
+LoginFormModel * new_LoginForm();
 
 LoginFormModel * new_LoginForm() {
 	LoginFormModel *form = malloc(sizeof(LoginFormModel));

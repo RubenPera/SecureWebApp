@@ -31,8 +31,11 @@ int page(struct http_request *req)
 	struct kore_buf	*buffer;
 	http_populate_get(req);
 
-	buffer = kore_buf_alloc(asset_len_Index_html);
-	kore_buf_append(buffer, asset_Index_html, asset_len_Index_html);
+	buffer = kore_buf_alloc(asset_len_MasterPage_html);
+	kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+
+
+	kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
 
 	http_response(req, 200, buffer->data, buffer->offset);
 	return (KORE_RESULT_OK);

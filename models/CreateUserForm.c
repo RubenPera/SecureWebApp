@@ -1,4 +1,4 @@
-#include <regex>
+#include <regex.h>
 
 typedef struct
 {
@@ -17,6 +17,9 @@ typedef struct
 
 } CreateUserFormModel;
 
+CreateUserFormModel * new_CreateUserFormModel();
+CreateUserFormModel * fill_CreateUserFormModel(struct http_request *req);
+
 CreateUserFormModel * new_CreateUserFormModel() {
 	CreateUserFormModel *form = malloc(sizeof(CreateUserFormModel));
 
@@ -33,19 +36,14 @@ CreateUserFormModel * new_CreateUserFormModel() {
 	return form;
 }
 
-CreateUserFormModel * new_CreateUserFormModel(struct http_request *req) {
+CreateUserFormModel * fill_CreateUserFormModel(struct http_request *req) {
 	CreateUserFormModel * model = new_CreateUserFormModel();
 	
 	http_populate_post(req);
 	char * value_to_be_validated = "";
 	http_argument_get_string(req, model->param_email, value_to_be_validated);
 
-
+	return model;
 	
 	
-}
-
-int main() {
-	CreateUserFormModel * temp = new_CreateUserFormModel();
-	temp->
 }
