@@ -20,8 +20,6 @@
 #include <time.h>
 
 
-const char * htmlEnd = "</script></body></html>";
-
 int	page(struct http_request *);
 int login(struct http_request *);
 int createUser(struct http_request *);
@@ -112,6 +110,17 @@ int login(struct http_request *req)
 
 int createUser(struct http_request * req) {
 
+	http_response(req, 200, NULL, NULL);
+	return (KORE_RESULT_OK);
+}
+
+int flightOverView(struct http_request * req) {
+
+	struct kore_buf	*buffer = kore_buf_alloc(asset_len_MasterPage_html);
+	kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+	
+	kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
+	kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
 	http_response(req, 200, NULL, NULL);
 	return (KORE_RESULT_OK);
 }
