@@ -5,6 +5,16 @@ For this project the library kore.io is used.
 It is **strongly adviced** to follow the install tutorial on github of kore.io
 https://github.com/jorisvink/kore
 
+# Install
+Navigate to your desired directory and clone the kore repoistory
+`git clone https://github.com/jorisvink/kore`
+
+navigate to the /kore folder and install kore
+`make`
+`make install`
+
+
+# Build Project
 Because kore.io doesnt work well with projects pulled from git only the following folders are placed on github:
 * src, for the c source files
 * conf, for the configuration files
