@@ -6,10 +6,11 @@ It is **strongly adviced** to follow the install tutorial on github of kore.io
 https://github.com/jorisvink/kore
 
 # Install
-Navigate to your desired directory and clone the kore repoistory
+Clone the kore repository to a desired directory:
+
 `git clone https://github.com/jorisvink/kore`
 
-navigate to the /kore folder and install kore
+Navigate to the /kore folder and install kore
 `make`
 `make install`
 
