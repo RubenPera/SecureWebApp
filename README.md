@@ -11,8 +11,8 @@ Clone the kore repository to a desired directory:
 `git clone https://github.com/jorisvink/kore`
 
 Navigate to the /kore folder and install kore
-`make`
-`make install`
+`make` <br>
+`make install`<br>
 
 
 # Build Project
@@ -45,4 +45,7 @@ This is due the line ending being a windows line ending instead of an Unix line 
 Use the command <br />
 `dos2unix SecureWebApp.conf`
 
+### Kore install fals
+Make sure openssl dev is installed, installl this with:
+`sudo apt-get install libssl-dev`
 
