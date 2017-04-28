@@ -12,7 +12,7 @@ Debug/
 SecureWebApp.so
 assets.h
 cert
-# conf/build.conf
+conf/build.conf
 dh2048.pem
 kore.pid
 
