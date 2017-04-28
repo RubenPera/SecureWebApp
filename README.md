@@ -5,6 +5,17 @@ For this project the library kore.io is used.
 It is **strongly adviced** to follow the install tutorial on github of kore.io
 https://github.com/jorisvink/kore
 
+# Install
+Clone the kore repository to a desired directory:
+
+`git clone https://github.com/jorisvink/kore`
+
+Navigate to the /kore folder and install kore
+`make` <br>
+`make install`<br>
+
+
+# Build Project
 Because kore.io doesnt work well with projects pulled from git only the following folders are placed on github:
 * src, for the c source files
 * conf, for the configuration files
@@ -34,4 +45,7 @@ This is due the line ending being a windows line ending instead of an Unix line 
 Use the command <br />
 `dos2unix SecureWebApp.conf`
 
+### Kore install fals
+Make sure openssl dev is installed, installl this with: <br>
+`sudo apt-get install libssl-dev`
 
