@@ -46,6 +46,6 @@ Use the command <br />
 `dos2unix SecureWebApp.conf`
 
 ### Kore install fals
-Make sure openssl dev is installed, installl this with:
+Make sure openssl dev is installed, installl this with: <br>
 `sudo apt-get install libssl-dev`
 
