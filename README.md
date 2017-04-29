@@ -24,7 +24,8 @@ Because kore.io doesnt work well with projects pulled from git only the followin
 Because of this you should first create a project using kore.io and then import the github files into this project.
 
 `kodev create SecureWebApp`<br />
-`cd SecureWebApp/` <br />
+`cd SecureWebApp/` 
+
 
 You use checkout the files of this project into this folder.<br />
 This is done with the following commands:<br />
@@ -33,6 +34,20 @@ This is done with the following commands:<br />
 `git fetch`<br />
 `rm .gitignore conf/SecureWebApp.conf src/SecureWebApp.c`<br />
 `git checkout -t origin/master`<br />
+`kodev build`
+
+
+Because mysql is now used in the application the mysql libraries must be linked in the project.<br>
+First make sure mysql and the developer environment is instlaled:<br>
+`apt-get install mysql-client libmysqlclient-dev`
+
+
+Now add the mysql link to conf/build.conf. Run the following command<br>
+`mysql_config --cflags --libs`<br>
+And place this output in the build.conf file, it must be preceeded by `ldflags=` be on a newline and in thet shared configurations.<br>
+Example:<br>
+`ldflags= -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -lrt -ldl`
+
 
 Then use `kodev run ` to start the application.
 
