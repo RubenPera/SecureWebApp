@@ -38,7 +38,7 @@ This is done with the following commands:<br />
 
 
 Because mysql is now used in the application the mysql libraries must be linked in the project.<br>
-First make sure mysql and the developer environment is instlaled:<br>
+First make sure mysql and the developer environment is installed:<br>
 `apt-get install mysql-client libmysqlclient-dev`
 
 
