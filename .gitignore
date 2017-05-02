@@ -3,6 +3,7 @@
 # Folders
 .vs/
 Debug/
+.vscode/
 
 
 # Kore files
@@ -22,5 +23,7 @@ kore.pid
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+
+
 
 

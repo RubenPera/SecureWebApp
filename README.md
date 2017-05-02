@@ -29,24 +29,24 @@ Because of this you should first create a project using kore and then import the
 
 You use checkout the files of this project into this folder.
 This is done with the following commands:
-`git init`
-`git remote add origin https://github.com/RubenPera/SecureWebApp`
-`git fetch`
-`rm .gitignore conf/SecureWebApp.conf src/SecureWebApp.c`
-`git checkout -t origin/master`
+`git init`  
+`git remote add origin https://github.com/RubenPera/SecureWebApp`  
+`git fetch`  
+`rm .gitignore conf/SecureWebApp.conf src/SecureWebApp.c`  
+`git checkout -t origin/master`  
 `kodev build`
 
 
-Because mysql is now used in the application the mysql libraries must be linked in the project.
-First make sure mysql and the developer environment is installed:
+Because mysql is now used in the application the mysql libraries must be linked in the project.  
+First make sure mysql and the developer environment is installed:  
 `apt-get install mysql-client libmysqlclient-dev`
 
 
-Now add the mysql link to conf/build.conf. Run the following command
+Now add the mysql link to conf/build.conf. Run the following command   
 `mysql_config --cflags --libs`
 
 And place this output in the build.conf file, it must be preceeded by `ldflags=` be on a newline and in thet shared configurations.
-Example:
+Example:  
 `ldflags= -I/usr/include/mysql -L/usr/lib/x86_64-linux-gnu -lmysqlclient -lpthread -lz -lm -lrt -ldl`
 
 Then use `kodev run ` to start the application.
