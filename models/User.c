@@ -1,6 +1,6 @@
 #include <time.h>
 
-struct User
+typedef struct 
 {
 	int id;
 	char * email;
@@ -10,9 +10,5 @@ struct User
 	int inholland_miles;
 	char * paspoort_id;
 	time_t * paspoort_valid_date;
-	 
-};
+}User;
 
-void main(){
-	Struct User 
-}
