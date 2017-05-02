@@ -6,7 +6,7 @@
 - SQL injection, validate user input
 - cross site scripting, validate user input 
 - Buffer overruns, validate user input, user kore_buf
-- Magic Urls, preditable cookies and hidden form fields, if in doubt about how to do something ask colleagues
+- Magic Urls, predictable cookies and hidden form fields, if in doubt about how to do something ask colleagues
 
 ### Implementation Sins
 - Integer overflows, 
