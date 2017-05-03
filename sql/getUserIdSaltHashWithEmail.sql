@@ -1,2 +1,2 @@
-select id,password_hash, password_salt from user
-where email = '';
+select id,pasword_hash, pasword_salt from user
+where email = 'test@test.nl';
