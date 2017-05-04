@@ -5,8 +5,8 @@
 ### user
 - id : int
 - name : string
-- birthdate : date
-- password : string
+- password_hash : string
+- password_salt : string
 - email : string
 - inholland_miles : int
 - paspoort_id : string
@@ -18,8 +18,8 @@
 - id : int
 - date : date
 - price : int
-- flight_source_id : int
-- flight_destination_id : int
+- flight_source : string
+- flight_destination : string
 - capacity : int
 - external_id : int
 
