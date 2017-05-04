@@ -4,55 +4,83 @@
 #include <mysql/mysql.h>
 #endif
 
+
 #define get_user_id_salt_hash_with_email 'select id,pasword_hash, pasword_salt from user where email = ?;';
 
-int dbConnect();
+void dbConnect(MYSQL *conn);
+void getUsers();
+void dbDisconnect(MYSQL *conn);
 
-int dbConnect()
+void dbConnect(MYSQL *conn)
 {
-    MYSQL *conn;
-    MYSQL_RES *res;
-    MYSQL_ROW row;
-
     char *server = "127.0.0.1";
     char *user = "root";
     char *password = "root"; /* set me first */
-    char *database = "sys";
-
-    kore_log(2, mysql_get_client_info());
+    char *database = "secure_web_app_database";
+    unsigned int port = 3306;
 
     /* Connect to database */
-    if (mysql_real_connect(conn, server,
-                           user, password, database, 3306, NULL, 0))
+    if (!mysql_real_connect(conn, server,
+                            user, password, database, port, NULL, 0))
     {
         kore_log(2, mysql_error(conn));
     }
-    kore_log(2, "test");
-    mysql_select_db(conn, "sys");
-    kore_log(2, "db selected   ");
-    mysql_query(conn, "select * from users;");
+    mysql_select_db(conn, database);
+}
+
+void dbDisconnect(MYSQL *conn)
+{
+    mysql_close(conn);
+}
+
+void getUsers()
+{
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+    MYSQL *conn;
+    int _row = 0,
+        _column = 0;
+
+    conn = mysql_init(NULL);
+    dbConnect(conn);
+
+    mysql_query(conn, "select * from user;");
 
     MYSQL_RES *result = mysql_store_result(conn);
-    if (result == NULL)
+    if (result != NULL)
     {
-        kore_log(2, "nothing found");
-    }
-    else
-    {
-        MYSQL_ROW row;
-
-        kore_log(2, "result is not null");
-        unsigned long *lengths = mysql_fetch_lengths(result);
-        kore_log(2, "MySQL Tables in mysql database:");
+        unsigned int num_fields = mysql_num_fields(result);
+        kore_log(2, "%d", result->row_count);
+        kore_log(2, "%d", num_fields);
+        char *array[result->row_count + 1][num_fields + 1];
 
         while ((row = mysql_fetch_row(result)))
         {
-            kore_log(2, row[1]);
+            for (_column = 0; _column < num_fields; _column++)
+            {
+                // kore_log(2, row[_column]);
+                array[_row][_column] = row[_column];
+            }
+            _row++;
+            kore_log(2, "");
         }
+        // array[0][0] = 't';
+        kore_log(2, " size of array: %d", (int) sizeof(array));
 
-        while ((row = mysql_fetch_row(res)) != NULL)
+        for (_row = 0; _row < result->row_count; _row++)
         {
-            kore_log(2, row[0]);
+            for (_column = 0; _column < num_fields; _column++)
+            {
+                // kore_log(2, array[_row][_column]);
+            }
         }
+        struct kore_buf * buffer;
+        buffer = kore_buf_alloc(sizeof(array));
+        kore_buf_append(buffer, *array, sizeof(array));
+        // Struct DatabaseResult rs = NULL;
+        // rs->data = array;
+        
+
     }
+    dbDisconnect(conn);
 }

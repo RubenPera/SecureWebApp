@@ -32,9 +32,10 @@ int page(struct http_request *req)
 	struct http_cookie *cookie;
 	char *value;
 
-	// dbConnect();
+	// getUsers();
 	/* set formatted cookie */
 
+kore_log(2, "returned");
 	http_populate_cookies(req);
 
 	buffer = getCookieValue(req, "Lando");
@@ -64,7 +65,6 @@ int login(struct http_request *req)
 	// kore_log(2, mysql_stat(conn));
 	if (req->method == HTTP_METHOD_POST)
 	{
-
 		http_populate_post(req);
 		http_argument_get_string(req, "firstname", &firstName);
 		http_argument_get_string(req, "lastname", &lastName);
@@ -125,6 +125,6 @@ int flightOverView(struct http_request *req)
 
 	kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
 	kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
-	http_response(req, 200, NULL, NULL);
+	http_response(req, 200, buffer->data, buffer->offset);
 	return (KORE_RESULT_OK);
 }
