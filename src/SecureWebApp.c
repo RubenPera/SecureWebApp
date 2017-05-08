@@ -1,41 +1,15 @@
 
-#ifndef KORE_RESULT_OK
-#include <kore/kore.h>
-#include <kore/http.h>
-#endif
-
-#ifndef KORE_RESULT_OK
-#include <kore.h>
-#include <http.h>
-#endif
-
-#include "assets.h"
-#include "../models/models.h"
-#include <mysql/mysql.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <regex.h>
-#include <openssl/sha.h>
-#include <time.h>
-
-#define class struct
-#define null NULL
-
-int page(struct http_request *);
-int login(struct http_request *);
-int createUser(struct http_request *);
+#include "Header.h"
 
 int page(struct http_request *req)
 {
+	kore_log(2, "returned");
 	struct kore_buf *buffer;
 	struct http_cookie *cookie;
 	char *value;
-
-	// getUsers();
+	DatabaseResult dbResult = getUsers();
 	/* set formatted cookie */
 
-kore_log(2, "returned");
 	http_populate_cookies(req);
 
 	buffer = getCookieValue(req, "Lando");
@@ -119,7 +93,6 @@ int createUser(struct http_request *req)
 
 int flightOverView(struct http_request *req)
 {
-
 	struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
 	kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
