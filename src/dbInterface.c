@@ -1,7 +1,6 @@
 #include "Header.h"
 
 #define get_user_id_salt_hash_with_email 'select id,pasword_hash, pasword_salt from user where email = ?;';
-jmp_buf jumper;
 void dbConnect(MYSQL *conn)
 {
     char *server = "127.0.0.1";

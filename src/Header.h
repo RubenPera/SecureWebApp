@@ -20,6 +20,7 @@
 #include <regex.h>
 #include <openssl/sha.h>
 #include <time.h>
+#include "smart_string.h"
 
 #define null NULL
 
