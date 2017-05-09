@@ -1,7 +1,7 @@
 #include "Header.h"
 
 #define get_user_id_salt_hash_with_email 'select id,pasword_hash, pasword_salt from user where email = ?;';
-
+jmp_buf jumper;
 void dbConnect(MYSQL *conn)
 {
     char *server = "127.0.0.1";
@@ -36,7 +36,7 @@ DatabaseResult getUsers()
     conn = mysql_init(NULL);
     dbConnect(conn);
 
-    mysql_query(conn, "select * from user;");
+    mysql_query(conn, "call get_all_users()");
 
     MYSQL_RES *result = mysql_store_result(conn);
     if (result != NULL)
@@ -44,15 +44,24 @@ DatabaseResult getUsers()
         unsigned int num_fields = mysql_num_fields(result);
 
         dbResult = init_DatabaseResult(result->row_count, num_fields);
+
         while ((row = mysql_fetch_row(result)))
         {
             for (columnCounter = 0; columnCounter < num_fields; columnCounter++)
             {
-                dbResult.data[_row][columnCounter];
+                dbResult.data[_row][columnCounter] = row[columnCounter];
             }
             _row++;
         }
+        for (int i = 0; i < dbResult.rows; i++)
+        {
+            for (int y = 0; y < dbResult.columns; y++)
+            {
+                kore_log(2, dbResult.data[i][y]);
+            }
+        }
     }
+
     dbDisconnect(conn);
     return dbResult;
 }
