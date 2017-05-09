@@ -90,3 +90,44 @@ void getAllFlights()
         kore_log(2, field_array[i]);
     }
 }
+
+void update_session(int session_id)
+{
+    MYSQL_FIELD *field;
+    MYSQL *conn;
+    MYSQL_STMT *stmt;
+    MYSQL_BIND bind[1];
+    int param_count;
+
+    conn = mysql_init(NULL);
+    dbConnect(conn);
+
+    char *query = "call update_session_last_use(?)";
+
+    stmt = mysql_stmt_init(mysql);
+    if (!stmt)
+    {
+        kore_log(1, "mysql_stmt_init out of memory");
+    }
+
+    if (mysql_stmt_prepare(stmt, query, strlen(query)))
+    {
+        kore)log(1, "error");
+    }
+    param_count = mysql_stmt_param_count(stmt);
+
+    kore_log(2, "param count = %s", param_count);
+
+    memset(bind, 0, sizeof(bind));
+
+    bind[0].buffer_type = MYSQL_TYPE_LONG;
+    bind[0].buffer = (char *)&session_id;
+    bind[0].is_null = 0;
+    bind[0].length = 0;
+
+    if (mysql_stmt_bind_param(stmt, bind))
+    {
+        kore_log(1, "ERROR");
+    }
+    // https://dev.mysql.com/doc/refman/5.6/en/mysql-stmt-execute.html
+}
