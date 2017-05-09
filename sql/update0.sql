@@ -36,3 +36,23 @@ create procedure get_all_users()
         from user;
 	end //
 delimiter ;
+
+delimiter //
+create procedure update_session_last_use(in session_id_var int(11))
+	begin
+		update session
+		set last_use = now()
+		where session_id = session_id_var;
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_user_with_session(in session_id_var int(11))
+	begin
+		select * from user
+		where id = (
+		select session.user_id 
+		from session
+		where session.session_id = session_id_var);
+	end //
+delimiter ;

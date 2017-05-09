@@ -21,7 +21,7 @@
 #include <openssl/sha.h>
 #include <time.h>
 #include "smart_string.h"
-
+#include "database.h"
 #define null NULL
 
 // DatabaseResult.c
