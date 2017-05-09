@@ -65,7 +65,7 @@ DatabaseResult getUsers()
     return dbResult;
 }
 
-const char *sqlToJson(SmartString *str, char *query, char *groupname)
+void sqlToJson(SmartString *str, char *query, char *groupname)
 {
     MYSQL_FIELD *field;
     MYSQL_ROW row;
@@ -126,4 +126,33 @@ const char *sqlToJson(SmartString *str, char *query, char *groupname)
 void DoHet(SmartString *str)
 {
     smart_string_append(str, "hallo");
+}
+
+void createBooking(char *userId, char *flightId)
+{
+    MYSQL *conn;
+    SmartString *updateFlight = smart_string_new();
+    ;
+    SmartString *updateBooking = smart_string_new();
+    ;
+    conn = mysql_init(NULL);
+    dbConnect(conn);
+
+    /*Decrease capacity of flight */
+    smart_string_append(updateFlight, "UPDATE booking SET capacity = capacity - 1 WHERE id =");
+    smart_string_append(updateFlight, flightId);
+    smart_string_append(updateFlight, ";");
+
+    mysql_query(conn, updateFlight->buffer);
+
+    /*Insert a booking into the booking table */
+    smart_string_append(updateBooking, "INSERT INTO booking VALUES(NULL,");
+    smart_string_append(updateBooking, userId);
+    smart_string_append(updateBooking, ",");
+    smart_string_append(updateBooking, flightId);
+    smart_string_append(updateBooking, ");");
+
+    mysql_query(conn, updateBooking->buffer);
+
+    dbDisconnect(conn);
 }
