@@ -21,10 +21,15 @@ create table flight(
     flight_source varchar(265) not null,
     flight_destination varchar(265) not null,
     capacity int not null,
-    external_id int not null,
-	primary key (id) 
+   	primary key (id) 
     );
     
+-- INSERT INTO flight
+-- VALUES(NULL,'2017-06-3','%d-%m-%y'),'9991','Rotterdam','Notterdam','200');
+
+
+
+
 create table booking(
 	id int not null auto_increment,
     user_id int not null,
