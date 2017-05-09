@@ -7,6 +7,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
   <script src="https://cdn.jsdelivr.net/vue.resource/1.3.1/vue-resource.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
   <style>
     body {
@@ -292,12 +293,13 @@ Modal CSS stylesheet
 
         book: function (flight) {
           var _this = this;
-
+          console.log(flight.id);
+          console.log("kawkakwakwaw");
           //Need to also to add to wich user this flight will be added to
-          this.$http.post('flight', flight).then(
+          this.$http.post('/bookFlight', "id="+ flight.id).then(
             function () {
-              alert("Your flight has been booked!")
-              window.location.replace("http://127.0.0.1/FlightOverview");
+              this.showModal = false;
+              location.reload();
             });
         },
       }

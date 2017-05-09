@@ -37,6 +37,9 @@ typedef struct{
 int page(struct http_request *);
 int login(struct http_request *);
 int createUser(struct http_request *);
+int bookFlight(struct http_request *);
+int flightOverView(struct http_request *);
+
 
 // Cookie.c
 void setCookie(struct http_request * req, char * name, char * value, char * path);
