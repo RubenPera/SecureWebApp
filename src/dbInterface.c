@@ -4,6 +4,8 @@
 #include <mysql/mysql.h>
 #endif
 
+#include <stdio.h>
+#include <json-c/json.h>
 
 #define get_user_id_salt_hash_with_email 'select id,pasword_hash, pasword_salt from user where email = ?;';
 
@@ -84,3 +86,35 @@ void getUsers()
     }
     dbDisconnect(conn);
 }
+
+void getAllFlights()
+{
+    MYSQL_FIELD *field;
+    MYSQL *conn;
+
+
+    conn = mysql_init(NULL);
+    dbConnect(conn);
+
+    mysql_query(conn, "select * from flight;");
+    
+
+    MYSQL_RES *result = mysql_store_result(conn);
+    int num_fields = mysql_num_fields(result);
+    char **field_array;
+    field_array = (char **)malloc(sizeof(char *) * (num_fields + 1));
+    for(int i=0; i < num_fields; i++)
+        {
+                field =  mysql_fetch_field(result);
+                field_array[i] = field->name;
+            
+   
+        }
+
+        for(int i=0; i < num_fields; i++)
+        {
+        kore_log(2, field_array[i]);
+            
+        }
+
+}   
