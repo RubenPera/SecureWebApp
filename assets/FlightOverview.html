@@ -299,7 +299,7 @@ Modal CSS stylesheet
           this.$http.post('/bookFlight', "id="+ flight.id).then(
             function () {
               this.showModal = false;
-              location.reload();
+              this.loadFlights();
             });
         },
       }
