@@ -1,18 +1,4 @@
-
-#ifndef KORE_RESULT_OK
-#include <kore/kore.h>
-#include <kore/http.h>
-#endif
-
-#ifndef KORE_RESULT_OK
-#include <kore.h>
-#include <http.h>
-#endif
-
-void setCookie(struct http_request * req, char * name, char * value, char * path);
-struct kore_buf	* getCookieValue(struct http_request * req, char * name);
-
-// TODO: should be encrypted
+#include "Header.h"
 
 void setCookie(struct http_request * req, char * name, char * value, char * path){
     struct kore_buf *buffer;

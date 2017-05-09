@@ -1,46 +1,16 @@
 
-#ifndef KORE_RESULT_OK
-#include <kore/kore.h>
-#include <kore/http.h>
-#endif
-
-#ifndef KORE_RESULT_OK
-#include <kore.h>
-#include <http.h>
-#endif
-
-#include "assets.h"
-#include "../models/models.h"
-#include <mysql/mysql.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <regex.h>
-#include <openssl/sha.h>
-#include <time.h>
-#include <stdio.h>
-#include "smart_string.h"
-
-#define class struct
-#define null NULL
-
-int page(struct http_request *);
-int login(struct http_request *);
-int createUser(struct http_request *);
-int getFlights(struct http_request *);
+#include "Header.h"
 
 int page(struct http_request *req)
 {
-    struct kore_buf *buffer;
-    struct http_cookie *cookie;
-    char *value;
+	kore_log(2, "returned");
+	struct kore_buf *buffer;
+	struct http_cookie *cookie;
+	char *value;
+	DatabaseResult dbResult = getUsers();
+	/* set formatted cookie */
 
-    getAllFlights();
-    // getUsers();
-    /* set formatted cookie */
-
-    kore_log(2, "returned");
-    http_populate_cookies(req);
+	http_populate_cookies(req);
 
     buffer = getCookieValue(req, "Lando");
     if (buffer != null)
