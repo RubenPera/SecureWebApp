@@ -21,6 +21,8 @@
 #include <openssl/sha.h>
 #include <time.h>
 #include "smart_string.h"
+#include "../json-c/json.h"
+#include <stdio.h>
 
 #define null NULL
 

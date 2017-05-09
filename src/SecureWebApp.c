@@ -3,14 +3,15 @@
 
 int page(struct http_request *req)
 {
-	kore_log(2, "returned");
-	struct kore_buf *buffer;
-	struct http_cookie *cookie;
-	char *value;
-	DatabaseResult dbResult = getUsers();
-	/* set formatted cookie */
+    kore_log(2, "returned");
+    struct kore_buf *buffer;
+    struct http_cookie *cookie;
+    char *value;
+    DatabaseResult dbResult = getUsers();
 
-	http_populate_cookies(req);
+    /* set formatted cookie */
+
+    http_populate_cookies(req);
 
     buffer = getCookieValue(req, "Lando");
     if (buffer != null)
@@ -106,17 +107,12 @@ int flightOverView(struct http_request *req)
 
 int getFlights(struct http_request *req)
 {
-    SmartString *ss = smart_string_new();
-    smart_string_append(ss, "{\"Flights\":[");
-    smart_string_append(ss, "{\"id\":\"1\",\"from\":\"Utrecht\", \"to\": \"Amsterdam\",\"date\":\"21-03-2017\",\"airmiles\":\"5231\"},");
-    smart_string_append(ss, "{\"id\":\"1\",\"from\":\"Misteryland\", \"to\": \"Amsterdam\",\"date\":\"21-03-2017\",\"airmiles\":\"5231\"},");
-    smart_string_append(ss, "{\"id\":\"1\",\"from\":\"Misteryland\", \"to\": \"Utrecht\",\"date\":\"21-03-2017\",\"airmiles\":\"7201\"}");
-    smart_string_append(ss, "]}");
+    char *query = "select *, DATE_FORMAT(date,'%d/%m/%Y') as 'date' from flight;";
+    char *groupname = "Flights";
+    SmartString *str = smart_string_new();
+    sqlToJson(str, query, groupname);
 
-    http_response(req, 200, ss->buffer, (unsigned)strlen(ss->buffer));
+    http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
     return (KORE_RESULT_OK);
 }
-
-
-
