@@ -3,7 +3,6 @@
 
 int page(struct http_request *req)
 {
-	kore_log(2, "returned");
 	struct kore_buf *buffer;
 	struct http_cookie *cookie;
 	char *value;

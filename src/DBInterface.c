@@ -1,7 +1,10 @@
 #include "Header.h"
 
 #define get_user_id_salt_hash_with_email 'select id,pasword_hash, pasword_salt from user where email = ?;';
-void dbConnect(MYSQL *conn)
+
+// Connects to database
+// Should only be called from inside this file
+void _dbConnect(MYSQL *conn)
 {
     char *server = "127.0.0.1";
     char *user = "root";
@@ -18,11 +21,13 @@ void dbConnect(MYSQL *conn)
     mysql_select_db(conn, database);
 }
 
-void dbDisconnect(MYSQL *conn)
+void _dbDisconnect(MYSQL *conn)
 {
     mysql_close(conn);
 }
 
+// Returns all users from database
+// In a DatabaseResult struct
 DatabaseResult getUsers()
 {
     MYSQL_RES *res;
@@ -33,7 +38,7 @@ DatabaseResult getUsers()
     DatabaseResult dbResult;
 
     conn = mysql_init(NULL);
-    dbConnect(conn);
+    _dbConnect(conn);
 
     mysql_query(conn, "call get_all_users()");
 
@@ -52,16 +57,9 @@ DatabaseResult getUsers()
             }
             _row++;
         }
-        for (int i = 0; i < dbResult.rows; i++)
-        {
-            for (int y = 0; y < dbResult.columns; y++)
-            {
-                kore_log(2, dbResult.data[i][y]);
-            }
-        }
     }
 
-    dbDisconnect(conn);
+    _dbDisconnect(conn);
     return dbResult;
 }
 
@@ -71,7 +69,7 @@ void getAllFlights()
     MYSQL *conn;
 
     conn = mysql_init(NULL);
-    dbConnect(conn);
+    _dbConnect(conn);
 
     mysql_query(conn, "select * from flight;");
 
@@ -91,8 +89,11 @@ void getAllFlights()
     }
 }
 
+// Updates the session last_updated variable
+// Session is deleted when older than 15 minutes
 void update_session(int session_id)
 {
+    kore_log(2, "begin of function");
     MYSQL_FIELD *field;
     MYSQL *conn;
     MYSQL_STMT *stmt;
@@ -100,11 +101,13 @@ void update_session(int session_id)
     int param_count;
 
     conn = mysql_init(NULL);
-    dbConnect(conn);
-
+    kore_log(2, "conn inited");
+    _dbConnect(conn);
+    kore_log(2, "connected");
     char *query = "call update_session_last_use(?)";
 
-    stmt = mysql_stmt_init(mysql);
+    stmt = mysql_stmt_init(conn);
+    kore_log(2, "stmt inited");
     if (!stmt)
     {
         kore_log(1, "mysql_stmt_init out of memory");
@@ -112,7 +115,7 @@ void update_session(int session_id)
 
     if (mysql_stmt_prepare(stmt, query, strlen(query)))
     {
-        kore)log(1, "error");
+        kore_log(1, "error");
     }
     param_count = mysql_stmt_param_count(stmt);
 
@@ -127,7 +130,17 @@ void update_session(int session_id)
 
     if (mysql_stmt_bind_param(stmt, bind))
     {
-        kore_log(1, "ERROR");
+        kore_log(2, "ERROR");
     }
+    if (mysql_stmt_store_result(stmt))
+    {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt))
+    {
+        kore_log(2, "ERROR executing");
+    }
+    kore_log(2, "2");
     // https://dev.mysql.com/doc/refman/5.6/en/mysql-stmt-execute.html
 }

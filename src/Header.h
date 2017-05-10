@@ -41,9 +41,9 @@ void setCookie(struct http_request * req, char * name, char * value, char * path
 struct kore_buf	* getCookieValue(struct http_request * req, char * name);
 
 // DBInterface.c
-void dbConnect(MYSQL *conn);
+void _dbConnect(MYSQL *conn);
 DatabaseResult getUsers();
-void dbDisconnect(MYSQL *conn);
+void _dbDisconnect(MYSQL *conn);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);
