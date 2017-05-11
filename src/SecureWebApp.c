@@ -116,7 +116,7 @@ int getFlights(struct http_request *req)
     http_response_header(req, "content-type", "application/json");
     http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
-    /*Clean up smartstring */
+    /*Clean up smartstring - free up memory*/
     smart_string_destroy(str);
 
     return (KORE_RESULT_OK);
@@ -133,7 +133,6 @@ int bookFlight(struct http_request *req)
     /* Grab it as a string, we shouldn't free the result in sid. */
     if (http_argument_get_string(req, "id", &sid))
     {
-        kore_log(2, sid);
         createBooking("1", sid);
     }
 

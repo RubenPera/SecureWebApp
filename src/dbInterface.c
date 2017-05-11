@@ -214,7 +214,7 @@ void createBooking(char *userId, char *flightId)
                 }
                 else
                 {
-                    kore_log(2, "Booking has been succesfuly made.");
+                    kore_log(2, "Booking transaction succeeded.");
                 }
             }
         }
