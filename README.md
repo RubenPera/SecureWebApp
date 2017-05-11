@@ -56,9 +56,9 @@ For the project to build succesfuly, download and install these dependencies.
 
 @JSON-C - JSON BUILDER  
 
--Any Linux: https://github.com/json-c/json-c
--Ubuntu: https://linuxprograms.wordpress.com/2010/05/20/install-json-c-in-linux/
--Packet Manager.
+-Any Linux: https://github.com/json-c/json-c<br>
+-Ubuntu: https://linuxprograms.wordpress.com/2010/05/20/install-json-c-in-linux/<br>
+-Packet Manager.<br>
 
 After installing, add the following lines to build.conf:
 
