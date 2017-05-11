@@ -62,9 +62,9 @@ For the project to build succesfuly, download and install these dependencies.
 
 After installing, add the following lines to build.conf:
 
-`ldflags=-I/usr/include/json-c`
-`CFLAGS =-I/user/include/json-c`
-`LDFLAGS=-L/user/lib -ljson-c`
+`ldflags=-I/usr/include/json-c`<br>
+`CFLAGS =-I/user/include/json-c`<br>
+`LDFLAGS=-L/user/lib -ljson-c`<br>
 
 
 ## Known Errors
