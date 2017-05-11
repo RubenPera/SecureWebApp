@@ -70,7 +70,7 @@ void sqlToJson(SmartString *str, char *query, char *groupname)
     MYSQL_FIELD *field;
     MYSQL_ROW row;
     MYSQL *conn;
-    unsigned int col_counter = 0;
+    int col_counter = 0;
 
     /*Creating a json object*/
     json_object *container = json_object_new_object();
@@ -131,28 +131,164 @@ void DoHet(SmartString *str)
 void createBooking(char *userId, char *flightId)
 {
     MYSQL *conn;
+    MYSQL_RES *result;
+    MYSQL_ROW userRow;
+    MYSQL_ROW flightRow;
+    int *flightPrice = 0;
+    int *userAirmiles = 0;
     SmartString *updateFlight = smart_string_new();
-    ;
     SmartString *updateBooking = smart_string_new();
-    ;
+    SmartString *getFlightPriceQuery = smart_string_new();
+    SmartString *getUserAirmilesQuery = smart_string_new();
+    SmartString *updateUserAirmilesQuery = smart_string_new();
+
+    /*Connect to db*/
     conn = mysql_init(NULL);
     dbConnect(conn);
 
-    /*Decrease capacity of flight */
-    smart_string_append(updateFlight, "UPDATE booking SET capacity = capacity - 1 WHERE id =");
-    smart_string_append(updateFlight, flightId);
-    smart_string_append(updateFlight, ";");
+    /*Create query for getting airmiles by userId*/
+    createGetUserAirmilesQuery(getUserAirmilesQuery, userId);
+    createGetFlightPriceQuery(getFlightPriceQuery, flightId);
 
-    mysql_query(conn, updateFlight->buffer);
+    mysql_query(conn, getUserAirmilesQuery->buffer);
+    result = mysql_store_result(conn);
+    if (result != NULL)
+    {
+        kore_log(2, getUserAirmilesQuery->buffer);
+        userRow = mysql_fetch_row(result);
+        userAirmiles = atoi(userRow[0]);
+        kore_log(2, userRow[0]);
+        mysql_free_result(result);
+        result = NULL;
+        mysql_next_result(conn);
+    }
+    else
+    {
+        kore_log(2, "Error: ResultNullexception");
+    }
 
-    /*Insert a booking into the booking table */
-    smart_string_append(updateBooking, "INSERT INTO booking VALUES(NULL,");
-    smart_string_append(updateBooking, userId);
-    smart_string_append(updateBooking, ",");
-    smart_string_append(updateBooking, flightId);
-    smart_string_append(updateBooking, ");");
+    mysql_query(conn, getFlightPriceQuery->buffer);
+    result = mysql_store_result(conn);
 
-    mysql_query(conn, updateBooking->buffer);
+    if (result != NULL)
+    {
+        kore_log(2, getFlightPriceQuery->buffer);
+        flightRow = mysql_fetch_row(result);
+        flightPrice = atoi(flightRow[0]);
+        kore_log(2, flightRow[0]);
+        result = NULL;
+        mysql_next_result(conn);
+    }
+    else
+    {
+        kore_log(2, "Error: ResultNullexception");
+    }
 
+    if (userAirmiles > flightPrice)
+    {
+        /*Create a query for decreasing capacity of flight by 1 */
+        createUpdateFlightCapacityQuery(updateFlight, flightId);
+        kore_log(2, updateFlight->buffer);
+        if (mysql_query(conn, updateFlight->buffer) != 0)
+        {
+            kore_log(2, "UPDATE Flight failed: Stopping booking..");
+        }
+        else
+        {
+
+            /*Create a qeury for inserting a booking into the booking table */
+            createInsertBookingQuery(updateBooking, userId, flightId);
+            kore_log(2, updateBooking->buffer);
+            if (mysql_query(conn, updateBooking->buffer) != 0)
+            {
+                kore_log(2, "INSERT INTO Booking failed: Stopping booking..");
+            }
+            else
+            {
+
+                createUpdateUserAirMilesQuery(updateUserAirmilesQuery, userId, flightPrice);
+                kore_log(2, updateUserAirmilesQuery->buffer);
+                if (mysql_query(conn, updateUserAirmilesQuery->buffer) != 0)
+                {
+                    kore_log(2, "UPDATE User failed: Stopping booking..");
+                }
+                else
+                {
+                    kore_log(2, "Booking has been succesfuly made.");
+                }
+            }
+        }
+    }
+
+    /*Disconnect from db*/
     dbDisconnect(conn);
+
+    /*Destroy/ Clean up smartstrings*/
+    smart_string_destroy(updateFlight);
+    smart_string_destroy(updateBooking);
+    smart_string_destroy(getFlightPriceQuery);
+    smart_string_destroy(getUserAirmilesQuery);
+    smart_string_destroy(updateUserAirmilesQuery);
+}
+
+void getUserAirmiles(SmartString *output, char *userId)
+{
+    MYSQL *conn;
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+    SmartString *getUserAirmilesQuery = smart_string_new();
+
+    /*connect to db*/
+    conn = mysql_init(NULL);
+    dbConnect(conn);
+
+    createGetUserAirmilesQuery(getUserAirmilesQuery, userId);
+
+    mysql_query(conn, getUserAirmilesQuery->buffer);
+
+    result = mysql_store_result(conn);
+    if (result != NULL)
+    {
+        row = mysql_fetch_row(result);
+        smart_string_append(output, row[0]);
+    }
+    dbDisconnect(conn);
+}
+void createInsertBookingQuery(SmartString *str, char *userId, char *flightId)
+{
+    smart_string_append(str, "call insert_booking(");
+    smart_string_append(str, userId);
+    smart_string_append(str, ",");
+    smart_string_append(str, flightId);
+    smart_string_append(str, ");");
+}
+
+void createUpdateFlightCapacityQuery(SmartString *str, char *flightId)
+{
+    smart_string_append(str, "call update_flight_capacity(");
+    smart_string_append(str, flightId);
+    smart_string_append(str, ");");
+}
+
+void createGetFlightPriceQuery(SmartString *str, char *flightId)
+{
+    smart_string_append(str, "call get_flight_price(");
+    smart_string_append(str, flightId);
+    smart_string_append(str, ");");
+}
+
+void createGetUserAirmilesQuery(SmartString *str, char *userId)
+{
+    smart_string_append(str, "call get_user_airmiles_by_userid(");
+    smart_string_append(str, userId);
+    smart_string_append(str, ");");
+}
+
+void createUpdateUserAirMilesQuery(SmartString *str, char *userId, int price)
+{
+    smart_string_append(str, "call update_user_airmiles(");
+    smart_string_append(str, userId);
+    smart_string_append(str, ",");
+    smart_string_append_sprintf(str, "%d", price);
+    smart_string_append(str, ");");
 }

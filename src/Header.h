@@ -23,6 +23,7 @@
 #include "smart_string.h"
 #include "../json-c/json.h"
 #include <stdio.h>
+#include <unistd.h>
 
 #define null NULL
 

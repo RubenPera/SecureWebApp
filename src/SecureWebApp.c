@@ -107,7 +107,7 @@ int flightOverView(struct http_request *req)
 
 int getFlights(struct http_request *req)
 {
-    char *query = "select *, DATE_FORMAT(date,'%d/%m/%Y') as 'date' from flight;";
+    char *query = "call get_all_flights()";
     char *groupname = "Flights";
     SmartString *str = smart_string_new();
     sqlToJson(str, query, groupname);
@@ -115,6 +115,9 @@ int getFlights(struct http_request *req)
     /*Send data to page - response */
     http_response_header(req, "content-type", "application/json");
     http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
+
+    /*Clean up smartstring */
+    smart_string_destroy(str);
 
     return (KORE_RESULT_OK);
 }
@@ -131,6 +134,7 @@ int bookFlight(struct http_request *req)
     if (http_argument_get_string(req, "id", &sid))
     {
         kore_log(2, sid);
+        createBooking("1", sid);
     }
 
     /* Grab it as an actual u_int16_t. */
@@ -138,6 +142,6 @@ int bookFlight(struct http_request *req)
     {
     }
     http_response(req, 200, NULL, NULL);
-    
+
     return (KORE_RESULT_OK);
 }
