@@ -52,7 +52,7 @@ Example:
 Then use `kodev run ` to start the application.
 
 # Dependencies 
-For the project to build succesfuly, download and install these dependencies.
+For the project to build successful, download and install the following dependencies.
 
 @JSON-C - JSON BUILDER  
 
