@@ -79,3 +79,7 @@ Use the command
 ### Kore install fals
 Make sure openssl dev is installed, installl this with:
 `sudo apt-get install libssl-dev`
+
+### Kore does not compile
+Make sure libbase64-dev is installed
+`sudo apt-get install libbase64-dev`
