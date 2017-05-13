@@ -66,6 +66,10 @@ After installing, add the following lines to build.conf:
 `CFLAGS =-I/user/include/json-c`<br>
 `LDFLAGS=-L/user/lib -ljson-c`<br>
 
+Instal the following libs to use b64 encoding and decoding.
+https://github.com/clibs/clib
+https://github.com/littlstar/b64.c
+
 
 ## Known Errors
 
