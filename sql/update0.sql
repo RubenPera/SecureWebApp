@@ -35,6 +35,67 @@ create procedure get_all_users()
 		select *
         from user;
 	end //
+
+delimiter //
+create procedure update_flight_capacity(in flightId varchar(255))
+	begin
+		UPDATE flight 
+		SET capacity = capacity - 1 
+		WHERE id = flightId;
+	end //
+delimiter ;
+
+delimiter //
+create procedure insert_booking(in userId varchar(255),in flightId varchar(255))
+	begin
+		INSERT INTO booking 
+		VALUES (NULL,userId,flightId);
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_all_flights()
+	begin
+		select *,DATE_FORMAT(date,'%d/%m/%Y') as 'date'
+        from flight;
+	end //
+
+delimiter;
+
+delimiter //
+create procedure get_user_by_id(in userId varchar(255))
+	begin
+		select *
+        from user
+        where id = userId;
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_user_airmiles_by_userid(in userId varchar(255))
+	begin
+		select inholland_miles
+        from user
+        where id = userId;
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_flight_price(in flightId varchar(255))
+	begin
+		select price
+        from flight
+        where id = flightId;
+	end //
+delimiter ;
+
+delimiter //
+create procedure update_user_airmiles(in userId varchar(255),in price int)
+	begin
+		UPDATE user 
+		SET inholland_miles = inholland_miles - price
+        where id = userId;
+	end //
 delimiter ;
 
 delimiter //

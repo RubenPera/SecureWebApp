@@ -17,9 +17,11 @@ int page(struct http_request *req)
 	kore_log(2, "%s", get_DatabaseResult(dbResult, 0, 0));
 	kore_log(2, "%s", get_DatabaseResult(dbResult, 0, 1));
 
-	http_populate_get(req);
-	
-	buffer = kore_buf_alloc(asset_len_MasterPage_html);
+    buffer = getCookieValue(req, "Lando");
+    if (buffer != null)
+    {
+	kore_log(2, buffer->data);
+    }
 
 	kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 	kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
@@ -103,14 +105,40 @@ int flightOverView(struct http_request *req)
 
 int getFlights(struct http_request *req)
 {
-	SmartString *ss = smart_string_new();
-	smart_string_append(ss, "{\"Flights\":[");
-	smart_string_append(ss, "{\"id\":\"1\",\"from\":\"Utrecht\", \"to\": \"Amsterdam\",\"date\":\"21-03-2017\",\"airmiles\":\"5231\"},");
-	smart_string_append(ss, "{\"id\":\"1\",\"from\":\"Misteryland\", \"to\": \"Amsterdam\",\"date\":\"21-03-2017\",\"airmiles\":\"5231\"},");
-	smart_string_append(ss, "{\"id\":\"1\",\"from\":\"Misteryland\", \"to\": \"Utrecht\",\"date\":\"21-03-2017\",\"airmiles\":\"7201\"}");
-	smart_string_append(ss, "]}");
+    char *query = "call get_all_flights()";
+    char *groupname = "Flights";
+    SmartString *str = smart_string_new();
+    sqlToJson(str, query, groupname);
 
-	http_response(req, 200, ss->buffer, (unsigned)strlen(ss->buffer));
+    /*Send data to page - response */
+    http_response_header(req, "content-type", "application/json");
+    http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
-	return (KORE_RESULT_OK);
+    /*Clean up smartstring - free up memory*/
+    smart_string_destroy(str);
+
+    return (KORE_RESULT_OK);
+}
+
+int bookFlight(struct http_request *req)
+{
+    u_int16_t id;
+    char *sid;
+    struct kore_buf *buf;
+
+    http_populate_post(req);
+
+    /* Grab it as a string, we shouldn't free the result in sid. */
+    if (http_argument_get_string(req, "id", &sid))
+    {
+        createBooking("1", sid);
+    }
+
+    /* Grab it as an actual u_int16_t. */
+    if (http_argument_get_uint16(req, "id", &id))
+    {
+    }
+    http_response(req, 200, NULL, NULL);
+
+    return (KORE_RESULT_OK);
 }

@@ -21,8 +21,10 @@
 #include <openssl/sha.h>
 #include <time.h>
 #include "smart_string.h"
-#include "database.h"
+#include "../json-c/json.h"
+#include <unistd.h>
 #include <openssl/rand.h>
+#include "database.h"
 #define null NULL
 #define STRING_SIZE 255
 
@@ -38,6 +40,9 @@ typedef struct
 int page(struct http_request *);
 int login(struct http_request *);
 int createUser(struct http_request *);
+int bookFlight(struct http_request *);
+int flightOverView(struct http_request *);
+
 
 // Cookie.c
 void setCookie(struct http_request *req, char *name, char *value, char *path);
