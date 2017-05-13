@@ -22,13 +22,16 @@
 #include <time.h>
 #include "smart_string.h"
 #include "database.h"
+#include <openssl/rand.h>
 #define null NULL
+#define STRING_SIZE 255
 
 // DatabaseResult.c
-typedef struct{
+typedef struct
+{
     unsigned int rows;
     unsigned int columns;
-    char*** data;
+    char ***data;
 } DatabaseResult;
 
 // SecureWebApp.c
@@ -37,22 +40,20 @@ int login(struct http_request *);
 int createUser(struct http_request *);
 
 // Cookie.c
-void setCookie(struct http_request * req, char * name, char * value, char * path);
-struct kore_buf	* getCookieValue(struct http_request * req, char * name);
+void setCookie(struct http_request *req, char *name, char *value, char *path);
+struct kore_buf *getCookieValue(struct http_request *req, char *name);
+void createSessionCookie(struct http_request *req, int user_id);
 
 // DBInterface.c
 void _dbConnect(MYSQL *conn);
 DatabaseResult getUsers();
 void _dbDisconnect(MYSQL *conn);
+void update_session(int session_id);
+DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE]);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);
-
-
-
-
-
-
-
+char *get_DatabaseResult(DatabaseResult result, unsigned int row, unsigned int column);
+void set_DatabaseResult(DatabaseResult result, unsigned int row, unsigned int column, char *value);
 
 #endif

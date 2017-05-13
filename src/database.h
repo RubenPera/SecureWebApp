@@ -8,6 +8,7 @@
 #define db_user_paspoort_id 5
 #define db_user_paspoort_valid_date 6
 #define db_user_role 7
+#define db_user_amount 8
 
 // Values of the booking table
 #define db_booking_id 0

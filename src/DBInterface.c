@@ -33,7 +33,7 @@ DatabaseResult getUsers()
     MYSQL_RES *res;
     MYSQL_ROW row;
     MYSQL *conn;
-    int _row = 0,
+    int rowCounter = 0,
         columnCounter = 0;
     DatabaseResult dbResult;
 
@@ -48,18 +48,123 @@ DatabaseResult getUsers()
         unsigned int num_fields = mysql_num_fields(result);
 
         dbResult = init_DatabaseResult(result->row_count, num_fields);
+        kore_log(2, " %c", 't');
 
         while ((row = mysql_fetch_row(result)))
         {
             for (columnCounter = 0; columnCounter < num_fields; columnCounter++)
             {
-                dbResult.data[_row][columnCounter] = row[columnCounter];
+                set_DatabaseResult(dbResult, rowCounter, columnCounter, row[columnCounter]);
             }
-            _row++;
+            rowCounter++;
         }
     }
 
     _dbDisconnect(conn);
+    return dbResult;
+}
+
+DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
+{
+    kore_log(1, " getSaltHashWithEmail");
+    MYSQL_FIELD *field;
+    MYSQL *conn;
+    MYSQL_STMT *stmt;
+    MYSQL_BIND inputBind[1];
+    MYSQL_BIND outputBind[2];
+    MYSQL_RES *prepare_meta_result;
+
+    unsigned long str_length = 255;
+    int param_count, column_count, row_count;
+
+    char email_param[STRING_SIZE];
+    char salt_param[STRING_SIZE];
+
+    char hash_param[STRING_SIZE];
+
+    unsigned long length[2];
+    bool is_null[2];
+    bool error[2];
+
+    conn = mysql_init(NULL);
+    prepare_meta_result = mysql_stmt_result_metadata(stmt);
+    _dbConnect(conn);
+
+    char *query = "call get_user_salt_hash_with_email(?);";
+
+    stmt = mysql_stmt_init(conn);
+    if (!stmt)
+    {
+        kore_log(1, "mysql_stmt_init out of memory");
+    }
+
+    if (mysql_stmt_prepare(stmt, query, strlen(query)))
+    {
+        kore_log(1, "error");
+    }
+
+    memset(inputBind, 0, sizeof(inputBind));
+
+    inputBind[0].buffer_type = MYSQL_TYPE_STRING;
+    inputBind[0].buffer = (char *)email_param;
+    inputBind[0].buffer_length = STRING_SIZE;
+    inputBind[0].is_null = 0;
+    inputBind[0].length = &str_length;
+
+    if (mysql_stmt_bind_param(stmt, inputBind))
+    {
+        kore_log(2, "ERROR");
+    }
+
+    strncpy(email_param, email, STRING_SIZE); /* string  */
+    str_length = strlen(email_param);
+
+    if (mysql_stmt_store_result(stmt))
+    {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt))
+    {
+        kore_log(2, "ERROR executing");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+
+    memset(outputBind, 0, sizeof(outputBind));
+
+    outputBind[0].buffer_type = MYSQL_TYPE_STRING;
+    outputBind[0].buffer = (char *)salt_param;
+    outputBind[0].buffer_length = STRING_SIZE;
+    outputBind[0].is_null = &is_null[0];
+    outputBind[0].length = &length[0];
+    outputBind[0].error = &error[0];
+
+    outputBind[1].buffer_type = MYSQL_TYPE_STRING;
+    outputBind[1].buffer = (char *)hash_param;
+    outputBind[1].buffer_length = STRING_SIZE;
+    outputBind[1].is_null = &is_null[1];
+    outputBind[1].length = &length[1];
+    outputBind[1].error = &error[1];
+
+    /* Bind the result buffers */
+    if (mysql_stmt_bind_result(stmt, outputBind))
+    {
+        kore_log(2, " mysql_stmt_bind_result() failed\n");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+    if (mysql_stmt_store_result(stmt))
+    {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+    row_count = 0;
+    mysql_stmt_fetch(stmt);
+    mysql_stmt_close(stmt);
+    _dbDisconnect(conn);
+    DatabaseResult dbResult;
+    dbResult = init_DatabaseResult(1, 2);
+    set_DatabaseResult(dbResult, 0, 0, salt_param);
+    set_DatabaseResult(dbResult, 0, 1, hash_param);
     return dbResult;
 }
 
@@ -93,7 +198,7 @@ void getAllFlights()
 // Session is deleted when older than 15 minutes
 void update_session(int session_id)
 {
-    kore_log(2, "begin of function");
+    kore_log(1, "update_session");
     MYSQL_FIELD *field;
     MYSQL *conn;
     MYSQL_STMT *stmt;
@@ -101,9 +206,7 @@ void update_session(int session_id)
     int param_count;
 
     conn = mysql_init(NULL);
-    kore_log(2, "conn inited");
     _dbConnect(conn);
-    kore_log(2, "connected");
     char *query = "call update_session_last_use(?)";
 
     stmt = mysql_stmt_init(conn);
@@ -119,7 +222,7 @@ void update_session(int session_id)
     }
     param_count = mysql_stmt_param_count(stmt);
 
-    kore_log(2, "param count = %s", param_count);
+    kore_log(2, "param count = %d", param_count);
 
     memset(bind, 0, sizeof(bind));
 
@@ -132,6 +235,7 @@ void update_session(int session_id)
     {
         kore_log(2, "ERROR");
     }
+
     if (mysql_stmt_store_result(stmt))
     {
         kore_log(2, " mysql_stmt_store_result() failed\n");
@@ -141,6 +245,7 @@ void update_session(int session_id)
     {
         kore_log(2, "ERROR executing");
     }
-    kore_log(2, "2");
+    mysql_stmt_close(stmt);
+    _dbDisconnect(conn);
     // https://dev.mysql.com/doc/refman/5.6/en/mysql-stmt-execute.html
 }
