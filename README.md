@@ -51,6 +51,22 @@ Example:
 
 Then use `kodev run ` to start the application.
 
+# Dependencies 
+For the project to build successful, download and install the following dependencies.
+
+@JSON-C - JSON BUILDER  
+
+-Any Linux: https://github.com/json-c/json-c<br>
+-Ubuntu: https://linuxprograms.wordpress.com/2010/05/20/install-json-c-in-linux/<br>
+-Packet Manager.<br>
+
+After installing, add the following lines to build.conf:
+
+`ldflags=-I/usr/include/json-c`<br>
+`CFLAGS =-I/user/include/json-c`<br>
+`LDFLAGS=-L/user/lib -ljson-c`<br>
+
+
 ## Known Errors
 
 If the command kodev run gives an error like: 
