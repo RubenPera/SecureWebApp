@@ -82,4 +82,4 @@ Make sure openssl dev is installed, installl this with:
 
 ### Kore does not compile
 Make sure libbase64-dev is installed
-`sudo apt-get install libbase64-dev`
+`sudo apt-get install libb64-dev`
