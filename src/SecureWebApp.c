@@ -142,3 +142,7 @@ int bookFlight(struct http_request *req)
 
     return (KORE_RESULT_OK);
 }
+
+validate_password_regex(){
+	// ^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "])(?=.*[A-Z]).*$
+}
