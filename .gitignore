@@ -4,10 +4,11 @@
 .vs/
 Debug/
 .vscode/
+cmake-build-debug/
+.idea/
 
 
 # Kore files
-*.o
 .flavor
 .objs
 SecureWebApp.so
@@ -16,6 +17,7 @@ cert
 conf/build.conf
 dh2048.pem
 kore.pid
+CMakeLists.txt
 
 
 # Visual studio files
@@ -23,7 +25,3 @@ kore.pid
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-
-
-
-

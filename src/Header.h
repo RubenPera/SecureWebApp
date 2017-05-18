@@ -55,6 +55,12 @@ DatabaseResult getUsers();
 void _dbDisconnect(MYSQL *conn);
 void update_session(int session_id);
 DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE]);
+void sqlToJson(SmartString *str, char *query, char *groupname);
+void DoHet(SmartString *str);
+void createBooking(char *userId, char *flightId);
+void getUserAirmiles(SmartString *output, char *userId);
+void createSessionRow(int userId, int sessionId);
+DatabaseResult getUserIdWithSession(int sessionId);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);

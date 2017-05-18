@@ -133,3 +133,20 @@ create procedure get_user_salt_hash_with_email(in email_var varchar(255))
 		where email = email_var;
 	end //
 delimiter ;
+
+delimiter //
+create procedure create_session_row(in userId int,in sessionId int)
+	begin
+		insert into
+        session(user_id, last_use, session_id)
+		values(userId, now(), sessionId);
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_user_id_from_session(in sessionId int)
+	begin
+		select user_id from session
+		where session_id = sessionId;
+	end //
+delimiter ;

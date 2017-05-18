@@ -1,11 +1,11 @@
 #include "Header.h"
 
 #define get_user_id_salt_hash_with_email 'select id,pasword_hash, pasword_salt from user where email = ?;';
-void dbConnect(MYSQL *conn)
+void _dbConnect(MYSQL *conn)
 {
     char *server = "127.0.0.1";
     char *user = "root";
-    char *password = "root"; /* set me first */
+    char *password = "TeamAlfa1!"; /* set me first */
     char *database = "secure_web_app_database";
     unsigned int port = 3306;
 
@@ -18,14 +18,14 @@ void dbConnect(MYSQL *conn)
     mysql_select_db(conn, database);
 }
 
-void dbDisconnect(MYSQL *conn)
+void _dbDisconnect(MYSQL *conn)
 {
+    kore_log(2, "Disconnecting");
     mysql_close(conn);
 }
 
 DatabaseResult getUsers()
 {
-    MYSQL_RES *res;
     MYSQL_ROW row;
     MYSQL *conn;
     int _row = 0,
@@ -33,7 +33,7 @@ DatabaseResult getUsers()
     DatabaseResult dbResult;
 
     conn = mysql_init(NULL);
-    dbConnect(conn);
+    _dbConnect(conn);
 
     mysql_query(conn, "call get_all_users()");
 
@@ -61,7 +61,7 @@ DatabaseResult getUsers()
         }
     }
 
-    dbDisconnect(conn);
+    _dbDisconnect(conn);
     return dbResult;
 }
 
@@ -129,10 +129,8 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
     MYSQL_STMT *stmt;
     MYSQL_BIND inputBind[1];
     MYSQL_BIND outputBind[2];
-    MYSQL_RES *prepare_meta_result;
-
+    	kore_log(2, "almost done");
     unsigned long str_length = 255;
-    int param_count, column_count, row_count;
 
     char email_param[STRING_SIZE];
     char salt_param[STRING_SIZE];
@@ -140,11 +138,11 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
     char hash_param[STRING_SIZE];
 
     unsigned long length[2];
-    bool is_null[2];
-    bool error[2];
+    // MySQL bool to make pointers fully compatible
+    my_bool is_null[2];
+    my_bool error[2];
 
     conn = mysql_init(NULL);
-    prepare_meta_result = mysql_stmt_result_metadata(stmt);
     _dbConnect(conn);
 
     char *query = "call get_user_salt_hash_with_email(?);";
@@ -162,19 +160,20 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
 
     memset(inputBind, 0, sizeof(inputBind));
 
+    strncpy(email_param, email, STRING_SIZE); /* string  */
+    str_length = strlen(email_param);
+
     inputBind[0].buffer_type = MYSQL_TYPE_STRING;
     inputBind[0].buffer = (char *)email_param;
     inputBind[0].buffer_length = STRING_SIZE;
     inputBind[0].is_null = 0;
     inputBind[0].length = &str_length;
 
+
     if (mysql_stmt_bind_param(stmt, inputBind))
     {
         kore_log(2, "ERROR");
     }
-
-    strncpy(email_param, email, STRING_SIZE); /* string  */
-    str_length = strlen(email_param);
 
     if (mysql_stmt_store_result(stmt))
     {
@@ -214,14 +213,21 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
         kore_log(2, " mysql_stmt_store_result() failed\n");
         kore_log(2, " %s\n", mysql_stmt_error(stmt));
     }
-    row_count = 0;
+
     mysql_stmt_fetch(stmt);
-    mysql_stmt_close(stmt);
     _dbDisconnect(conn);
     DatabaseResult dbResult;
     dbResult = init_DatabaseResult(1, 2);
-    set_DatabaseResult(dbResult, 0, 0, salt_param);
-    set_DatabaseResult(dbResult, 0, 1, hash_param);
+    if(!is_null[0]){
+        set_DatabaseResult(dbResult, 0, 0, salt_param);
+    } else{
+        set_DatabaseResult(dbResult, 0, 0, NULL);
+    }
+    if(!is_null[1]){
+        set_DatabaseResult(dbResult, 0, 1, hash_param);
+    } else{
+        set_DatabaseResult(dbResult, 0, 1, NULL);
+    }
     return dbResult;
 }
 
@@ -236,7 +242,7 @@ void sqlToJson(SmartString *str, char *query, char *groupname)
     json_object *container = json_object_new_object();
 
     conn = mysql_init(NULL);
-    dbConnect(conn);
+    _dbConnect(conn);
 
     mysql_query(conn, query);
 
@@ -279,7 +285,7 @@ void sqlToJson(SmartString *str, char *query, char *groupname)
         json_object_object_add(container, groupname, items);
     }
 
-    dbDisconnect(conn);
+    _dbDisconnect(conn);
     smart_string_append(str, json_object_to_json_string(container));
 }
 
@@ -304,7 +310,7 @@ void createBooking(char *userId, char *flightId)
 
     /*Connect to db*/
     conn = mysql_init(NULL);
-    dbConnect(conn);
+    _dbConnect(conn);
 
     /*Create query for getting airmiles by userId*/
     createGetUserAirmilesQuery(getUserAirmilesQuery, userId);
@@ -381,7 +387,7 @@ void createBooking(char *userId, char *flightId)
     }
 
     /*Disconnect from db*/
-    dbDisconnect(conn);
+    _dbDisconnect(conn);
 
     /*Destroy/ Clean up smartstrings*/
     smart_string_destroy(updateFlight);
@@ -400,7 +406,7 @@ void getUserAirmiles(SmartString *output, char *userId)
 
     /*connect to db*/
     conn = mysql_init(NULL);
-    dbConnect(conn);
+    _dbConnect(conn);
 
     createGetUserAirmilesQuery(getUserAirmilesQuery, userId);
 
@@ -412,7 +418,7 @@ void getUserAirmiles(SmartString *output, char *userId)
         row = mysql_fetch_row(result);
         smart_string_append(output, row[0]);
     }
-    dbDisconnect(conn);
+    _dbDisconnect(conn);
 }
 void createInsertBookingQuery(SmartString *str, char *userId, char *flightId)
 {
@@ -451,4 +457,144 @@ void createUpdateUserAirMilesQuery(SmartString *str, char *userId, int price)
     smart_string_append(str, ",");
     smart_string_append_sprintf(str, "%d", price);
     smart_string_append(str, ");");
+}
+
+void createSessionRow(int userId, int sessionId){
+    kore_log(1, "createSessionRow");
+    MYSQL *conn;
+    MYSQL_STMT *stmt;
+    MYSQL_BIND bind[2];
+
+    conn = mysql_init(NULL);
+    _dbConnect(conn);
+    char *query = "call create_session_row(?,?)";
+
+    stmt = mysql_stmt_init(conn);
+    kore_log(2, "stmt inited");
+    if (!stmt)
+    {
+        kore_log(1, "mysql_stmt_init out of memory");
+    }
+
+    if (mysql_stmt_prepare(stmt, query, strlen(query)))
+    {
+        kore_log(1, "error");
+    }
+
+    memset(bind, 0, sizeof(bind));
+
+    bind[0].buffer_type = MYSQL_TYPE_LONG;
+    bind[0].buffer = (char *)&userId;
+    bind[0].is_null = 0;
+    bind[0].length = 0;
+
+    bind[1].buffer_type = MYSQL_TYPE_LONG;
+    bind[1].buffer = (char *)&sessionId;
+    bind[1].is_null = 0;
+    bind[1].length = 0;
+
+    if (mysql_stmt_bind_param(stmt, bind))
+    {
+        kore_log(2, "ERROR");
+    }
+
+    if (mysql_stmt_store_result(stmt))
+    {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt))
+    {
+        kore_log(2, "ERROR executing");
+    }
+    mysql_stmt_close(stmt);
+    _dbDisconnect(conn);
+}
+
+DatabaseResult getUserIdWithSession(int sessionId){
+    kore_log(1, " getUserWithSession");
+    MYSQL *conn;
+    MYSQL_STMT *stmt;
+    MYSQL_BIND inputBind[1];
+    MYSQL_BIND outputBind[1];
+    kore_log(2, "almost done");
+    int userId;
+
+    unsigned long length[1];
+    // MySQL bool to make pointers fully compatible
+    my_bool is_null[1];
+    my_bool error[1];
+
+    conn = mysql_init(NULL);
+    _dbConnect(conn);
+
+    char *query = "call get_user_id_from_session(?);";
+
+    stmt = mysql_stmt_init(conn);
+    if (!stmt)
+    {
+        kore_log(1, "mysql_stmt_init out of memory");
+    }
+
+    if (mysql_stmt_prepare(stmt, query, strlen(query)))
+    {
+        kore_log(1, "error");
+    }
+
+    memset(inputBind, 0, sizeof(inputBind));
+
+    inputBind[0].buffer = (char *)&sessionId;
+    inputBind[0].buffer_type = MYSQL_TYPE_LONG;
+    inputBind[0].is_null = 0;
+    inputBind[0].length = 0;
+
+
+    if (mysql_stmt_bind_param(stmt, inputBind))
+    {
+        kore_log(2, "ERROR");
+    }
+
+    if (mysql_stmt_store_result(stmt))
+    {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt))
+    {
+        kore_log(2, "ERROR executing");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+
+    memset(outputBind, 0, sizeof(outputBind));
+
+    outputBind[0].buffer_type= MYSQL_TYPE_LONG;
+    outputBind[0].buffer= (char *)&userId;
+    outputBind[0].is_null= &is_null[0];
+    outputBind[0].length= &length[0];
+    outputBind[0].error= &error[0];
+
+
+    /* Bind the result buffers */
+    if (mysql_stmt_bind_result(stmt, outputBind))
+    {
+        kore_log(2, " mysql_stmt_bind_result() failed\n");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+    if (mysql_stmt_store_result(stmt))
+    {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+
+    mysql_stmt_fetch(stmt);
+    _dbDisconnect(conn);
+    DatabaseResult dbResult;
+    kore_log(2, "user id = %d", userId);
+    dbResult = init_DatabaseResult(1, 2);
+    if(!is_null[0]){
+        set_DatabaseResult(dbResult, 0, 0, userId);
+    } else{
+        set_DatabaseResult(dbResult, 0, 0, NULL);
+    }
+    return dbResult;
 }
