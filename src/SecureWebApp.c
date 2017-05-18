@@ -1,22 +1,41 @@
 
 #include "Header.h"
 
-int page(struct http_request *req) {
-    struct kore_buf *buffer;
-    struct http_cookie *cookie;
-    char *value;
-    DatabaseResult dbResult;
+bool isLoggedIn(struct http_request *req) {
     http_populate_cookies(req);
-    createSessionCookie(req, 123);
-    buffer = kore_buf_alloc(null);
-    dbResult = getSaltHashWithEmail("r.@gmail.com");
-    kore_log(2, "%s", get_DatabaseResult(dbResult, 0, 0));
-    kore_log(2, "%s", get_DatabaseResult(dbResult, 0, 1));
+    struct kore_buf *buffer;
+    buffer = getCookieValue(req, "session");
+    if (buffer != NULL && buffer->data != NULL) {
+        DatabaseResult dbResult;
+        kore_log(2, "buffer %s", buffer->data);
+        dbResult = getUserIdWithSession(buffer->data);
+        if (get_DatabaseResult(dbResult, 0, 0) != NULL) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
-    kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
-    http_response(req, 200, buffer->data, buffer->offset);
-    return (KORE_RESULT_OK);
+int page(struct http_request *req) {
+    if (isLoggedIn(req)) {
+        struct kore_buf *buffer;
+        struct http_cookie *cookie;
+        char *value;
+        DatabaseResult dbResult;
+        http_populate_cookies(req);
+        createSessionCookie(req, 123);
+        buffer = kore_buf_alloc(null);
+        dbResult = getSaltHashWithEmail("r.@gmail.com");
+        kore_log(2, "%s", get_DatabaseResult(dbResult, 0, 0));
+        kore_log(2, "%s", get_DatabaseResult(dbResult, 0, 1));
+
+        kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+        kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
+        http_response(req, 200, buffer->data, buffer->offset);
+        return (KORE_RESULT_OK);
+    } else {
+        return login(req);
+    }
 }
 
 int login(struct http_request *req) {
