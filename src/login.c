@@ -15,31 +15,31 @@
 // */
 
 
-// #include <stdio.h>
-// #include <string.h>
-// #include <stdbool.h>
-// #include <stdint.h>
-// #include <time.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdbool.h>
+ #include <stdint.h>
+ #include <time.h>
 
-// #include <mysql/mysql.h>
-// #include <stdbool.h>
+ #include <mysql/mysql.h>
+ #include <stdbool.h>
 
-// #include <linux/random.h>
-// #include <b64/cencode.h>
+ #include <linux/random.h>
+ #include <b64/cencode.h>
 
-// #include <openssl/evp.h>
-// #include <openssl/sha.h>
-// #include <openssl/crypto.h>
+ #include <openssl/evp.h>
+ #include <openssl/sha.h>
+ #include <openssl/crypto.h>
 
-// #include "login.h"
-// //#include "header.h"
+ #include "login.h"
+ //#include "header.h"
 
-// #define LOGIN_DATABASE_ERROR 1
-// #define LOGIN_SUCCESS 0
+ #define LOGIN_DATABASE_ERROR 1
+ #define LOGIN_SUCCESS 0
 
 // //bool validate_password(LoginData * check, char * input_pass);
 // void b64encode(char* input, int input_length, char * buffer);
-// void generate_random(char * buffer, int buffer_length);
+ void generate_random(char * buffer, int buffer_length);
 // uint64_t time_now();
 
 // void login_hash_password(const char* pass, const unsigned char* salt, int32_t iterations, uint32_t outputBytes, char* hexResult) //hashes the password using PBKDF2 sha512
@@ -78,12 +78,12 @@
 // 	return base64_buffer;
 // }
 
-// void generate_random(char * buffer, int buffer_length) //function for getting random data from /dev/urandom
-// {
-// 	FILE * urandom = fopen("/dev/urandom", "r");
-// 	fread(buffer, buffer_length, 1, urandom);
-// 	fclose(urandom);
-// }
+ void generate_random(char * buffer, int buffer_length) //function for getting random data from /dev/urandom
+ {
+ 	FILE * urandom = fopen("/dev/urandom", "r");
+ 	fread(buffer, buffer_length, 1, urandom);
+ 	fclose(urandom);
+ }
 
 // void b64encode(char* input, int input_length, char * buffer) //this code is a modified version of the code found here: https://sourceforge.net/p/libb64/git/ci/master/tree/examples/c-example1.c
 // { //encodes data into base64 using libb64-dev

@@ -130,7 +130,7 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
     MYSQL_BIND inputBind[1];
     MYSQL_BIND outputBind[2];
     	kore_log(2, "almost done");
-    unsigned long str_length = 255;
+    unsigned long str_length = STRING_SIZE;
 
     char email_param[STRING_SIZE];
     char salt_param[STRING_SIZE];
@@ -459,11 +459,15 @@ void createUpdateUserAirMilesQuery(SmartString *str, char *userId, int price)
     smart_string_append(str, ");");
 }
 
-void createSessionRow(int userId, int sessionId){
+void createSessionRow(int userId, char * sessionId){
     kore_log(1, "createSessionRow");
     MYSQL *conn;
     MYSQL_STMT *stmt;
     MYSQL_BIND bind[2];
+
+    unsigned long str_length = STRING_SIZE ;
+
+    char session_id_param[STRING_SIZE];
 
     conn = mysql_init(NULL);
     _dbConnect(conn);
@@ -488,10 +492,14 @@ void createSessionRow(int userId, int sessionId){
     bind[0].is_null = 0;
     bind[0].length = 0;
 
-    bind[1].buffer_type = MYSQL_TYPE_LONG;
-    bind[1].buffer = (char *)&sessionId;
+    bind[1].buffer_type = MYSQL_TYPE_STRING;
+    bind[1].buffer = (char *)session_id_param;
+    bind[1].buffer_length = STRING_SIZE;
     bind[1].is_null = 0;
-    bind[1].length = 0;
+    bind[1].length = &str_length;
+
+    strncpy(session_id_param, sessionId, STRING_SIZE); /* string  */
+    str_length = strlen(session_id_param);
 
     if (mysql_stmt_bind_param(stmt, bind))
     {
@@ -511,13 +519,16 @@ void createSessionRow(int userId, int sessionId){
     _dbDisconnect(conn);
 }
 
-DatabaseResult getUserIdWithSession(int sessionId){
+DatabaseResult getUserIdWithSession(char sessionId[STRING_SIZE - 1]){
     kore_log(1, " getUserWithSession");
     MYSQL *conn;
     MYSQL_STMT *stmt;
     MYSQL_BIND inputBind[1];
     MYSQL_BIND outputBind[1];
-    kore_log(2, "almost done");
+    unsigned long str_length = STRING_SIZE ;
+    kore_log(2, "test");
+
+    char session_id_param[STRING_SIZE];
     int userId;
 
     unsigned long length[1];
@@ -543,11 +554,15 @@ DatabaseResult getUserIdWithSession(int sessionId){
 
     memset(inputBind, 0, sizeof(inputBind));
 
-    inputBind[0].buffer = (char *)&sessionId;
-    inputBind[0].buffer_type = MYSQL_TYPE_LONG;
+    inputBind[0].buffer_type = MYSQL_TYPE_STRING;
+    inputBind[0].buffer = (char *)session_id_param;
+    inputBind[0].buffer_length = STRING_SIZE;
     inputBind[0].is_null = 0;
-    inputBind[0].length = 0;
+    inputBind[0].length = &str_length;
 
+    strncpy(session_id_param, sessionId, STRING_SIZE); /* string  */
+
+    str_length = strlen(session_id_param);
 
     if (mysql_stmt_bind_param(stmt, inputBind))
     {

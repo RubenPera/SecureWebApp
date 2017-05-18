@@ -28,19 +28,26 @@ struct kore_buf *getCookieValue(struct http_request *req, char *name) {
 
 // Creates Session Cookie
 void createSessionCookie(struct http_request *req, int user_id) {
-    char *key;
-    int size_of_key = 4 * 8 ; // default 32 bit
-    int keyAsInt = 0;
-    key = (char *) malloc(size_of_key * sizeof(char));
+    char key[STRING_SIZE];
 
-    if (!RAND_bytes(key, sizeof key)) {
-        kore_log(2, "openssl error");
-    }
-    keyAsInt = (int)key - '0';
+    generateSessionKey(key);
 
-    kore_log(2, "key = string %s", key);
-
-    createSessionRow(user_id, keyAsInt);
+    createSessionRow(user_id, key);
     setCookie(req, "session", key, "/");
-    getUserIdWithSession(keyAsInt);
+//    kore_log(2, "sizeof key = %d key = %s",sizeof(key), key);
+    getUserIdWithSession(key);
+}
+
+void generateSessionKey(char key[STRING_SIZE]) {
+    char keySeed[STRING_SIZE];
+
+    const char keySet[] = {"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+,<.>/?`~"};
+
+    generate_random(keySeed, STRING_SIZE);
+    for (int i = 0; i < STRING_SIZE - 1; i++) {
+        key[i] = keySet[keySeed[i] % sizeof(keySet)];
+
+    }
+    key[STRING_SIZE - 1] = NULL;
+
 }

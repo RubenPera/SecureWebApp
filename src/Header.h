@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <openssl/rand.h>
 #include "database.h"
+#include "login.h"
 #define null NULL
 #define STRING_SIZE 255
 
@@ -48,6 +49,7 @@ int flightOverView(struct http_request *);
 void setCookie(struct http_request *req, char *name, char *value, char *path);
 struct kore_buf *getCookieValue(struct http_request *req, char *name);
 void createSessionCookie(struct http_request *req, int user_id);
+void generateSessionKey(char key[STRING_SIZE]);
 
 // DBInterface.c
 void _dbConnect(MYSQL *conn);
@@ -59,8 +61,8 @@ void sqlToJson(SmartString *str, char *query, char *groupname);
 void DoHet(SmartString *str);
 void createBooking(char *userId, char *flightId);
 void getUserAirmiles(SmartString *output, char *userId);
-void createSessionRow(int userId, int sessionId);
-DatabaseResult getUserIdWithSession(int sessionId);
+void createSessionRow(int userId, char * sessionId);
+DatabaseResult getUserIdWithSession(char sessionId[STRING_SIZE]);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);
