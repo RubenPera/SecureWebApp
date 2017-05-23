@@ -1,0 +1,27 @@
+# Specifies what files should not be included in git
+
+# Folders
+.vs/
+Debug/
+.vscode/
+cmake-build-debug/
+.idea/
+
+
+# Kore files
+.flavor
+.objs
+SecureWebApp.so
+assets.h
+cert
+conf/build.conf
+dh2048.pem
+kore.pid
+CMakeLists.txt
+
+
+# Visual studio files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
