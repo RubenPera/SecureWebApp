@@ -133,3 +133,21 @@ create procedure get_user_salt_hash_with_email(in email_var varchar(255))
 		where email = email_var;
 	end //
 delimiter ;
+
+delimiter //
+create procedure get_userinfo(in user_id int)
+	begin
+		select email, inholland_miles from user
+		where user.id = user_id;
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_bookedflights(in user_id int)
+	begin
+		select * from flight
+		inner join booking on flight.id = booking.flight_id
+		where booking.user_id = user_id;
+	end //
+delimiter ;
+

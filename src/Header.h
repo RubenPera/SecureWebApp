@@ -42,6 +42,8 @@ int login(struct http_request *);
 int createUser(struct http_request *);
 int bookFlight(struct http_request *);
 int flightOverView(struct http_request *);
+int getUserInfo(struct http_request *);
+
 
 
 // Cookie.c

@@ -77,7 +77,7 @@ void update_session(int session_id)
     int param_count;
 
     conn = mysql_init(NULL);
-    _dbConnect(conn);
+    dbConnect(conn);
     char *query = "call update_session_last_use(?)";
 
     stmt = mysql_stmt_init(conn);
@@ -117,7 +117,7 @@ void update_session(int session_id)
         kore_log(2, "ERROR executing");
     }
     mysql_stmt_close(stmt);
-    _dbDisconnect(conn);
+    dbDisconnect(conn);
     // https://dev.mysql.com/doc/refman/5.6/en/mysql-stmt-execute.html
 }
 
@@ -142,10 +142,10 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
     unsigned long length[2];
     bool is_null[2];
     bool error[2];
-
+    kore_log(2, "test");
     conn = mysql_init(NULL);
     prepare_meta_result = mysql_stmt_result_metadata(stmt);
-    _dbConnect(conn);
+    dbConnect(conn);
 
     char *query = "call get_user_salt_hash_with_email(?);";
 
@@ -217,11 +217,12 @@ DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE])
     row_count = 0;
     mysql_stmt_fetch(stmt);
     mysql_stmt_close(stmt);
-    _dbDisconnect(conn);
+    dbDisconnect(conn);
     DatabaseResult dbResult;
+    kore_log(2, "test");
     dbResult = init_DatabaseResult(1, 2);
-    set_DatabaseResult(dbResult, 0, 0, salt_param);
-    set_DatabaseResult(dbResult, 0, 1, hash_param);
+    set_DatabaseResult(dbResult, 0, 0, "salt_param");
+    set_DatabaseResult(dbResult, 0, 1, "hash_param");
     return dbResult;
 }
 
