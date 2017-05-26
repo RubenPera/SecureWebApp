@@ -28,7 +28,7 @@
 #include "database.h"
 #include "login.h"
 #define null NULL
-#define STRING_SIZE 255
+#define STRING_SIZE 256
 
 // DatabaseResult.c
 typedef struct
@@ -44,6 +44,7 @@ int login(struct http_request *);
 int createUser(struct http_request *);
 int bookFlight(struct http_request *);
 int flightOverView(struct http_request *);
+int showLoginPage(struct http_request *req);
 
 
 // Cookie.c
@@ -55,15 +56,15 @@ void generateSessionKey(char key[STRING_SIZE]);
 void removeCookie(struct http_request * req, char * name);
 void removeSessionCookie(struct http_request * req);
 void createSessionRow(int userId, char * sessionId);
-DatabaseResult getUserIdWithSession(char sessionId[STRING_SIZE]);
+int getUserIdWithSession(char sessionId[STRING_SIZE - 1]);
 struct kore_buf *getSessionCookieValue(struct http_request *req);
 
 // DBInterface.c
 void _dbConnect(MYSQL *conn);
 DatabaseResult getUsers();
 void _dbDisconnect(MYSQL *conn);
-void update_session(int session_id);
-DatabaseResult getSaltHashWithEmail(char email[STRING_SIZE]);
+void update_session(char * session_id);
+DatabaseResult getIdSaltHashWithEmail(char *email);
 void sqlToJson(SmartString *str, char *query, char *groupname);
 void DoHet(SmartString *str);
 void createBooking(char *userId, char *flightId);

@@ -187,3 +187,13 @@ create procedure create_session_row(in userId int,in sessionId varchar(256))
 		values(userId, now(), sessionId);
 	end //
 delimiter ;
+
+drop procedure update_session_last_use;
+    delimiter //
+create procedure update_session_last_use(in session_id_var varchar(256))
+	begin
+		update session
+		set last_use = now()
+		where session_id = session_id_var;
+	end //
+delimiter ;

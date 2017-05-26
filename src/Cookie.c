@@ -65,12 +65,10 @@ void createSessionCookie(struct http_request *req, int user_id) {
 }
 
 
-
 void generateSessionKey(char key[STRING_SIZE]) {
     char keySeed[STRING_SIZE];
     calloc(keySeed, sizeof(keySeed));
     const char keySet[] = {"123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$^&*()-_+,<.>?`~"};
-
     generate_random(keySeed, STRING_SIZE);
     for (int i = 0; i < STRING_SIZE - 1; i++) {
         key[i] = keySet[keySeed[i] % (sizeof(keySet) - 1)];
