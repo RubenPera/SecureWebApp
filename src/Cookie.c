@@ -74,5 +74,4 @@ void generateSessionKey(char key[STRING_SIZE]) {
         key[i] = keySet[keySeed[i] % (sizeof(keySet) - 1)];
     }
     key[STRING_SIZE - 1] = NULL;
-
 }

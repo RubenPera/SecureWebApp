@@ -43,7 +43,6 @@ int login(struct http_request *req) {
     char *login_email_param = NULL;
     char *login_password_param = NULL;
 
-
     if (getLoggedInUser(req)) {
         return page(req);
     }
@@ -85,14 +84,18 @@ int createUser(struct http_request *req) {
 }
 
 int flightOverView(struct http_request *req) {
+    int userId = getLoggedInUser(req);
+    if (userId) {
+        struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
+        kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
-    struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
-    kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
-
-    kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
-    kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
-    http_response(req, 200, buffer->data, buffer->offset);
-    return (KORE_RESULT_OK);
+        kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
+        kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
+        http_response(req, 200, buffer->data, buffer->offset);
+        return (KORE_RESULT_OK);
+    } else {
+        return login(req);
+    }
 }
 
 int getFlights(struct http_request *req) {
@@ -115,20 +118,27 @@ int bookFlight(struct http_request *req) {
     u_int16_t id;
     char *sid;
     struct kore_buf *buf;
+    int userId = getLoggedInUser(req);
+//    kore_log(2, " test, %s", (char*)userId);
+    if (userId && req->method == HTTP_METHOD_POST) {
+        http_populate_post(req);
 
-    http_populate_post(req);
 
-    /* Grab it as a string, we shouldn't free the result in sid. */
-    if (http_argument_get_string(req, "id", &sid)) {
-        createBooking("1", sid);
+        /* Grab it as a string, we shouldn't free the result in sid. */
+        if (http_argument_get_string(req, "id", &sid)) {
+            createBooking(userId, sid);
+        }
+
+        /* Grab it as an actual u_int16_t. */
+        if (http_argument_get_uint16(req, "id", &id)) {
+
+        }
+        http_response(req, 200, NULL, NULL);
+
+        return (KORE_RESULT_OK);
+    } else {
+        return (KORE_RESULT_ERROR);
     }
-
-    /* Grab it as an actual u_int16_t. */
-    if (http_argument_get_uint16(req, "id", &id)) {
-    }
-    http_response(req, 200, NULL, NULL);
-
-    return (KORE_RESULT_OK);
 }
 
 validate_password_regex() {
