@@ -176,6 +176,17 @@ int showLoginPage(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
+int userInfo(struct http_request *req) {
+
+    struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
+    kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+
+    kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
+    kore_buf_replace_string(buffer, "$body$", asset_UserInfo_html, asset_len_UserInfo_html);
+    http_response(req, 200, buffer->data, buffer->offset);
+    return (KORE_RESULT_OK);
+}
+
 int getUserInfo(struct http_request *req) {
     u_int16_t id;
     char *sid;
@@ -246,4 +257,8 @@ int getFlightsBooked(struct http_request *req) {
     }
 
     return (KORE_RESULT_OK);
+}
+
+int getUserStatus(struct http_request *req) {
+
 }
