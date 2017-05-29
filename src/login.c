@@ -41,18 +41,30 @@ LOGIN_HASH_LENGTH     is a constant defined in login.h, which can be used to ens
 
 
 //bool validate_password(LoginData * check, char * input_pass);
+<<<<<<< HEAD
+void hax_encode(char* input, int input_length, char * buffer);
+void generate_random(char * buffer, int buffer_length);
+=======
 void hax_encode(char *input, int input_length, char *buffer);
 
 void generate_random(char *buffer, int buffer_length);
 
+>>>>>>> 94fee1a771cfb45f3bd8340eea4f0a11989ec5fc
 uint64_t time_now();
 
 void login_hash_password(char *pass, char *salt, int32_t iterations, uint32_t outputBytes,
                          char *hexResult) //hashes the password using PBKDF2 sha512
 {
+<<<<<<< HEAD
+	unsigned int i;
+     	unsigned char digest[outputBytes];
+     	PKCS5_PBKDF2_HMAC(pass, strlen(pass), salt, strlen(salt), iterations, EVP_sha512(), outputBytes, digest);
+     	hax_encode(digest, sizeof(digest), hexResult);
+=======
     unsigned char digest[outputBytes];
     PKCS5_PBKDF2_HMAC(pass, strlen(pass), salt, strlen(salt), iterations, EVP_sha512(), outputBytes, digest);
     hax_encode(digest, sizeof(digest), hexResult);
+>>>>>>> 94fee1a771cfb45f3bd8340eea4f0a11989ec5fc
 }
 
 bool
@@ -85,11 +97,19 @@ uint64_t time_now() {
 
 char *login_generate_salt(int length) //generates the salt using /dev/urandom
 {
+<<<<<<< HEAD
+	char buffer[length]; //create the buffer for the random data
+	char * output_buffer = malloc(length*2+1); //create buffer for b64 encoded data
+	generate_random(buffer, length); //get the random data
+	hax_encode(buffer, length, output_buffer);
+	return output_buffer;
+=======
     char buffer[length]; //create the buffer for the random data
     char *output_buffer = malloc(length * 2 + 1); //create buffer for b64 encoded data
     generate_random(buffer, length); //get the random data
     hax_encode(buffer, length, output_buffer);
     return output_buffer;
+>>>>>>> 94fee1a771cfb45f3bd8340eea4f0a11989ec5fc
 }
 
 void generate_random(char *buffer, int buffer_length) //function for getting random data from /dev/urandom
@@ -99,6 +119,15 @@ void generate_random(char *buffer, int buffer_length) //function for getting ran
     fclose(urandom);
 }
 
+<<<<<<< HEAD
+void hax_encode(char* input, int input_length, char * buffer) //this code is a modified version of the code found here: https://sourceforge.net/p/libb64/git/ci/master/tree/examples/c-example1.c
+{ //encodes data into base64 using libb64-dev
+	int i	;
+     	for (i = 0; i < input_length; i++){
+            sprintf(buffer + (i * 2), "%02x", 255 & input[i]);
+	}
+}
+=======
 void hax_encode(char *input, int input_length,
                 char *buffer) //this code is a modified version of the code found here: https://sourceforge.net/p/libb64/git/ci/master/tree/examples/c-example1.c
 { //encodes data into base64 using libb64-dev
@@ -107,3 +136,4 @@ void hax_encode(char *input, int input_length,
         sprintf(buffer + (i * 2), "%02x", 255 & input[i]);
     }
 }
+>>>>>>> 94fee1a771cfb45f3bd8340eea4f0a11989ec5fc
