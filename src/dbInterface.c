@@ -291,7 +291,7 @@ void DoHet(SmartString *str) {
     smart_string_append(str, "hallo");
 }
 
-void createBooking(char *userId, char *flightId) {
+void createBooking(int userId, char *flightId) {
     MYSQL *conn;
     MYSQL_RES *result;
     MYSQL_ROW userRow;
@@ -340,7 +340,7 @@ void createBooking(char *userId, char *flightId) {
         kore_log(2, "Error: ResultNullexception");
     }
 
-    if (userAirmiles > flightPrice) {
+    if (userAirmiles >= flightPrice) {
         /*Create a query for decreasing capacity of flight by 1 */
         createUpdateFlightCapacityQuery(updateFlight, flightId);
         kore_log(2, updateFlight->buffer);
@@ -364,7 +364,10 @@ void createBooking(char *userId, char *flightId) {
                 }
             }
         }
+    } else {
+        kore_log(2, "not enought moneys");
     }
+
 
     /*Disconnect from db*/
     _dbDisconnect(conn);
@@ -377,7 +380,7 @@ void createBooking(char *userId, char *flightId) {
     smart_string_destroy(updateUserAirmilesQuery);
 }
 
-void getUserAirmiles(SmartString *output, char *userId) {
+void getUserAirmiles(SmartString *output, int userId) {
     MYSQL *conn;
     MYSQL_RES *result;
     MYSQL_ROW row;
@@ -399,9 +402,9 @@ void getUserAirmiles(SmartString *output, char *userId) {
     _dbDisconnect(conn);
 }
 
-void createInsertBookingQuery(SmartString *str, char *userId, char *flightId) {
+void createInsertBookingQuery(SmartString *str, int userId, char *flightId) {
     smart_string_append(str, "call insert_booking(");
-    smart_string_append(str, userId);
+    smart_string_append_sprintf(str, "%d", userId);
     smart_string_append(str, ",");
     smart_string_append(str, flightId);
     smart_string_append(str, ");");
@@ -419,15 +422,15 @@ void createGetFlightPriceQuery(SmartString *str, char *flightId) {
     smart_string_append(str, ");");
 }
 
-void createGetUserAirmilesQuery(SmartString *str, char *userId) {
+void createGetUserAirmilesQuery(SmartString *str, int userId) {
     smart_string_append(str, "call get_user_airmiles_by_userid(");
-    smart_string_append(str, userId);
+    smart_string_append_sprintf(str, "%d", userId);
     smart_string_append(str, ");");
 }
 
-void createUpdateUserAirMilesQuery(SmartString *str, char *userId, int price) {
+void createUpdateUserAirMilesQuery(SmartString *str, int userId, int price) {
     smart_string_append(str, "call update_user_airmiles(");
-    smart_string_append(str, userId);
+    smart_string_append_sprintf(str, "%d", userId);
     smart_string_append(str, ",");
     smart_string_append_sprintf(str, "%d", price);
     smart_string_append(str, ");");
