@@ -176,6 +176,7 @@ int showLoginPage(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
+
 int userInfo(struct http_request *req) {
 
     struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
@@ -257,8 +258,4 @@ int getFlightsBooked(struct http_request *req) {
     }
 
     return (KORE_RESULT_OK);
-}
-
-int getUserStatus(struct http_request *req) {
-
 }
