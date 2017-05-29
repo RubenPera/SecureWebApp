@@ -4,6 +4,8 @@
 .vs/
 Debug/
 .vscode/
+.idea/
+cmake-build-debug/
 
 
 # Kore files
@@ -16,6 +18,7 @@ cert
 conf/build.conf
 dh2048.pem
 kore.pid
+CMakeLists.txt
 
 
 # Visual studio files
