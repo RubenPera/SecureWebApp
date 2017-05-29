@@ -1,23 +1,26 @@
 
 #include "Header.h"
 
-
 // Returns userId if a user is logged in
 // Returns false if a user is not logged in
-int getLoggedInUser(struct http_request *req) {
+int getLoggedInUser(struct http_request *req)
+{
     http_populate_cookies(req);
 
     struct kore_buf *buffer;
     buffer = getSessionCookieValue(req);
-    if (buffer != NULL && buffer->data != NULL) {
+    if (buffer != NULL && buffer->data != NULL)
+    {
         return getUserIdWithSession(buffer->data);
     }
     return false;
 }
 
-int page(struct http_request *req) {
+int page(struct http_request *req)
+{
     int userId = getLoggedInUser(req);
-    if (userId) {
+    if (userId)
+    {
         struct kore_buf *cookieValue;
 
         cookieValue = getSessionCookieValue(req);
@@ -32,37 +35,44 @@ int page(struct http_request *req) {
         kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
         http_response(req, 200, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         return login(req);
     }
 }
 
 // Returns the Login page
-int login(struct http_request *req) {
+int login(struct http_request *req)
+{
     struct kore_buf *buffer;
     char *login_email_param = NULL;
     char *login_password_param = NULL;
 
-    if (getLoggedInUser(req)) {
+    if (getLoggedInUser(req))
+    {
         return page(req);
     }
 
-    if (req->method == HTTP_METHOD_POST) {
+    if (req->method == HTTP_METHOD_POST)
+    {
         http_populate_post(req);
         if (KORE_RESULT_OK == http_argument_get_string(req, "email", &login_email_param) &&
-            KORE_RESULT_OK == http_argument_get_string(req, "password", &login_password_param)) {
+            KORE_RESULT_OK == http_argument_get_string(req, "password", &login_password_param))
+        {
 
             DatabaseResult dbResult;
             dbResult = getIdSaltHashWithEmail(login_email_param);
 
             bool temp = login_validate_password(login_password_param, get_DatabaseResult(dbResult, 0, 2),
                                                 get_DatabaseResult(dbResult, 0, 1));
-            if (!temp) {
+            if (!temp)
+            {
                 return showLoginPage(req);
             }
 
             http_populate_cookies(req);
-            createSessionCookie(req, (int) get_DatabaseResult(dbResult, 0, 0));
+            createSessionCookie(req, (int)get_DatabaseResult(dbResult, 0, 0));
 
             buffer = kore_buf_alloc(asset_len_MasterPage_html);
             kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
@@ -77,15 +87,18 @@ int login(struct http_request *req) {
     return showLoginPage(req);
 }
 
-int createUser(struct http_request *req) {
+int createUser(struct http_request *req)
+{
 
     http_response(req, 200, NULL, NULL);
     return (KORE_RESULT_OK);
 }
 
-int flightOverView(struct http_request *req) {
+int flightOverView(struct http_request *req)
+{
     int userId = getLoggedInUser(req);
-    if (userId) {
+    if (userId)
+    {
         struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
@@ -93,12 +106,15 @@ int flightOverView(struct http_request *req) {
         kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
         http_response(req, 200, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         return login(req);
     }
 }
 
-int getFlights(struct http_request *req) {
+int getFlights(struct http_request *req)
+{
     char *query = "call get_all_flights()";
     char *groupname = "Flights";
     SmartString *str = smart_string_new();
@@ -106,7 +122,7 @@ int getFlights(struct http_request *req) {
 
     /*Send data to page - response */
     http_response_header(req, "content-type", "application/json");
-    http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+    http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
     /*Clean up smartstring - free up memory*/
     smart_string_destroy(str);
@@ -114,49 +130,52 @@ int getFlights(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
-int bookFlight(struct http_request *req) {
+int bookFlight(struct http_request *req)
+{
     u_int16_t id;
     char *sid;
     struct kore_buf *buf;
     int userId = getLoggedInUser(req);
-//    kore_log(2, " test, %s", (char*)userId);
-    if (userId && req->method == HTTP_METHOD_POST) {
+    //    kore_log(2, " test, %s", (char*)userId);
+    if (userId && req->method == HTTP_METHOD_POST)
+    {
         http_populate_post(req);
 
-
-        /* Grab it as a string, we shouldn't free the result in sid. */
-        if (http_argument_get_string(req, "id", &sid)) {
-            createBooking(userId, sid);
-        }
-
         /* Grab it as an actual u_int16_t. */
-        if (http_argument_get_uint16(req, "id", &id)) {
-
+        if (http_argument_get_uint16(req, "id", &id))
+        {
+            createBooking(userId, sid);
         }
         http_response(req, 200, NULL, NULL);
 
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         return (KORE_RESULT_ERROR);
     }
 }
 
-validate_password_regex() {
+validate_password_regex()
+{
     // ^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "])(?=.*[A-Z]).*$
 }
 
 // Returns the Login page
 // Logs out the currenty logged in user by removing the session cookie
-int logout(struct http_request *req) {
+int logout(struct http_request *req)
+{
     DatabaseResult dbResult;
 
-    if (getLoggedInUser(req)) {
+    if (getLoggedInUser(req))
+    {
         removeSessionCookie(req);
     }
     return showLoginPage(req);
 }
 
-int showLoginPage(struct http_request *req) {
+int showLoginPage(struct http_request *req)
+{
     struct kore_buf *buffer;
     buffer = kore_buf_alloc(asset_len_MasterPage_html);
     kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
@@ -176,18 +195,19 @@ int showLoginPage(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
-int getUserInfo(struct http_request *req) {
-    u_int16_t id;
-    char *sid;
+int getUserInfo(struct http_request *req)
+{
+    u_int16_t sid;
     struct kore_buf *buf;
 
     http_populate_get(req);
 
     /* Grab it as a string, we shouldn't free the result in sid. */
-    if (http_argument_get_string(req, "id", &sid)) {
+    if (http_argument_get_uint16(req, "id", &sid))
+    {
         SmartString *query = smart_string_new();
         smart_string_append(query, "call get_userinfo(");
-        smart_string_append(query, sid);
+        smart_string_append_sprintf(query, "%d", sid);
         smart_string_append(query, ");");
 
         kore_log(2, query->buffer);
@@ -198,32 +218,31 @@ int getUserInfo(struct http_request *req) {
 
         /*Send data to page - response */
         http_response_header(req, "content-type", "application/json");
-        http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+        http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
         kore_log(2, str->buffer);
-
 
         /*Clean up smartstring - free up memory*/
         smart_string_destroy(str);
         smart_string_destroy(query);
-
     }
 
     return (KORE_RESULT_OK);
 }
 
-int getFlightsBooked(struct http_request *req) {
-    u_int16_t id;
-    char *sid;
+int getFlightsBooked(struct http_request *req)
+{
+    u_int16_t sid;
     struct kore_buf *buf;
 
     http_populate_get(req);
 
     /* Grab it as a string, we shouldn't free the result in sid. */
-    if (http_argument_get_string(req, "id", &sid)) {
+    if (http_argument_get_uint16(req, "id", &sid))
+    {
         SmartString *query = smart_string_new();
         smart_string_append(query, "call get_bookedflights(");
-        smart_string_append(query, sid);
+        smart_string_append_sprintf(query, "%d", sid);
         smart_string_append(query, ");");
 
         kore_log(2, query->buffer);
@@ -234,15 +253,13 @@ int getFlightsBooked(struct http_request *req) {
 
         /*Send data to page - response */
         http_response_header(req, "content-type", "application/json");
-        http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+        http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
         kore_log(2, str->buffer);
-
 
         /*Clean up smartstring - free up memory*/
         smart_string_destroy(str);
         smart_string_destroy(query);
-
     }
 
     return (KORE_RESULT_OK);

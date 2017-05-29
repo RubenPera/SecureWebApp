@@ -67,7 +67,7 @@ void update_session(char * session_id);
 DatabaseResult getIdSaltHashWithEmail(char *email);
 void sqlToJson(SmartString *str, char *query, char *groupname);
 void DoHet(SmartString *str);
-void createBooking(int userId, char *flightId);
+void createBooking(int userId, int flightId);
 void getUserAirmiles(SmartString *output, int userId);
 
 
