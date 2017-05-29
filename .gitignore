@@ -4,11 +4,12 @@
 .vs/
 Debug/
 .vscode/
-cmake-build-debug/
 .idea/
+cmake-build-debug/
 
 
 # Kore files
+*.o
 .flavor
 .objs
 SecureWebApp.so
