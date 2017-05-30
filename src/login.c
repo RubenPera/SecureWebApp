@@ -99,6 +99,7 @@ void generate_random(char *buffer, int buffer_length) //function for getting ran
     fclose(urandom);
 }
 
+
 void hax_encode(char *input, int input_length,
                 char *buffer) //this code is a modified version of the code found here: https://sourceforge.net/p/libb64/git/ci/master/tree/examples/c-example1.c
 { //encodes data into base64 using libb64-dev
