@@ -9,8 +9,8 @@ login_hash_password, which uses the PBKDF2 hashing algorithm to securely hash us
 login_validate_password, which over a period of 1 second hashes the input password, compares the hashed password with the one provided in the input, and returns whether or not the 2 hashed password are equal
 login_generate_salt, which generates salts for when a new password is created.
 
-LOGIN_HASH_ITERATIONS is a constant defined in login.h, which can be used to ensure that every time the hash function is called, it uses the same amount of iterations
-LOGIN_HASH_LENGTH     is a constant defined in login.h, which can be used to ensure that every time the hash function is called, the output hash is of the same length.
+
+
 
 */
 
@@ -36,8 +36,8 @@ LOGIN_HASH_LENGTH     is a constant defined in login.h, which can be used to ens
 #include "Header.h"
 //#include "header.h"
 
-#define LOGIN_DATABASE_ERROR 1
-#define LOGIN_SUCCESS 0
+
+
 
 
 //bool validate_password(LoginData * check, char * input_pass);
@@ -61,32 +61,35 @@ login_validate_password(char *input_password, char *hash, char *salt) //compares
     char backup[STRING_SIZE + 1];
     strcpy(backup, hash);
     uint64_t start = time_now();        //get the starttime of the function in microseconds
-    char hashed_input[LOGIN_HASH_LENGTH * 2 + 1]; //buffer for the hash function
-    hashed_input[LOGIN_HASH_LENGTH * 2] = NULL;
-    login_hash_password(input_password, salt, LOGIN_HASH_ITERATIONS, LOGIN_HASH_LENGTH,
+    char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
+
+    login_hash_password(input_password, salt, STRING_SIZE/2, STRING_SIZE/2,
                         hashed_input); //hash the password input by the user with the salt in the database
 
     int correct = 0;
     correct = strcmp(backup,
                      hashed_input); //check if the hashed password in the database and the hashed user input are equal
-//    kore_log(2, "backup = %s", backup);
-//    kore_log(2, "hashed = %s", hashed_input);
     while (time_now() < start + 1000);    //wait until the starttime + 1 second has passed
 
     return correct == 0;
+}
+
+void login_process_password(char * password, char * hash_buff, char * salt_buff)
+{
+    login_generate_salt(STRING_SIZE/2, salt_buff);
+    login_hash_password(password, salt_buffer, STRING_SIZE/2, STRING_SIZE/2, hash_buff);
 }
 
 uint64_t time_now() {
     struct timeval tv;
     gettimeofday(&tv, NULL);    //get current time, write to timeval struct
     return tv.tv_sec * 1000 +
-           tv.tv_usec / 1000; //change seconds and microseconds from timeval struct into single integer
+          tv.tv_usec / 1000; //change seconds and microseconds from timeval struct into single integer
 }
 
-char *login_generate_salt(int length) //generates the salt using /dev/urandom
+void *login_generate_salt(int length, char * output_buffer) //generates the salt using /dev/urandom
 {
     char buffer[length]; //create the buffer for the random data
-    char *output_buffer = malloc(length * 2 + 1); //create buffer for b64 encoded data
     generate_random(buffer, length); //get the random data
     hax_encode(buffer, length, output_buffer);
     return output_buffer;
