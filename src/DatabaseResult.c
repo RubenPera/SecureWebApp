@@ -7,21 +7,21 @@ DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns)
     result.rows = rows;
     result.columns = columns;
     result.data = calloc(result.rows + 1, sizeof(char **));
-    for (int i = 0; i < result.rows; i++)
+    for (int i = 0; i < result.rows + 1; i++)
     {
         result.data[i] = calloc(result.columns + 1, sizeof(char *));
     }
     return result;
 }
 
-char *get_DatabaseResult(DatabaseResult result, unsigned int row, unsigned int column)
+char * get_DatabaseResult(DatabaseResult result, unsigned int row, unsigned int column)
 {
-    if (row > (result.rows - 1))
+    if (row > (result.rows))
     {
         kore_log(2, "Provided row is out of range");
         return NULL;
     }
-    else if (column > (result.columns - 1))
+    else if (column > (result.columns))
     {
         kore_log(2, "Provided column is out of range");
         return NULL;
@@ -33,16 +33,19 @@ char *get_DatabaseResult(DatabaseResult result, unsigned int row, unsigned int c
 }
 void set_DatabaseResult(DatabaseResult result, unsigned int row, unsigned int column, char *value)
 {
-    if (row > (result.rows - 1))
+    if (row > (result.rows))
     {
         kore_log(2, "Provided row is out of range");
     }
-    else if (column > (result.columns - 1))
+    else if (column > (result.columns))
     {
         kore_log(2, "Provided column is out of range");
     }
     else
     {
+
         result.data[row][column] = value;
+//        kore_log(2, "value = %s", value);
+
     }
 }
