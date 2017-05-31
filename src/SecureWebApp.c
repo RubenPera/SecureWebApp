@@ -268,29 +268,40 @@ int showLoginPage(struct http_request *req) {
 }
 
 
-int userInfo(struct http_request *req) {
+int userInfo(struct http_request *req)
+{
 
-    struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
-    kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+    int userId = getLoggedInUser(req);
 
-    kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
-    kore_buf_replace_string(buffer, "$body$", asset_UserInfo_html, asset_len_UserInfo_html);
-    http_response(req, 200, buffer->data, buffer->offset);
-    return (KORE_RESULT_OK);
+    if (userId && req->method == HTTP_METHOD_GET)
+    {
+        struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
+        kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
+
+        kore_buf_replace_string(buffer, "$links$", asset_Links_html, asset_len_Links_html);
+        kore_buf_replace_string(buffer, "$body$", asset_UserInfo_html, asset_len_UserInfo_html);
+        http_response(req, 200, buffer->data, buffer->offset);
+
+        return (KORE_RESULT_OK);
+    }
+    else
+    {        
+        kore_log(2,"Unauthorized User Access");
+        return login(req);
+    }
 }
 
-int getUserInfo(struct http_request *req) {
-    u_int16_t id;
-    char *sid;
-    struct kore_buf *buf;
-
+int getUserInfo(struct http_request *req)
+{
     http_populate_get(req);
 
-    /* Grab it as a string, we shouldn't free the result in sid. */
-    if (http_argument_get_string(req, "id", &sid)) {
+    int userId = getLoggedInUser(req);
+
+    if (userId && req->method == HTTP_METHOD_GET)
+    {
         SmartString *query = smart_string_new();
         smart_string_append(query, "call get_userinfo(");
-        smart_string_append(query, sid);
+        smart_string_append_sprintf(query, "%d", userId);
         smart_string_append(query, ");");
 
         kore_log(2, query->buffer);
@@ -301,32 +312,36 @@ int getUserInfo(struct http_request *req) {
 
         /*Send data to page - response */
         http_response_header(req, "content-type", "application/json");
-        http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+        http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
         kore_log(2, str->buffer);
-
 
         /*Clean up smartstring - free up memory*/
         smart_string_destroy(str);
         smart_string_destroy(query);
-
+    }
+    else
+    {
+        http_response(req, 401,"Unauthorized", (unsigned)strlen("Unauthorized"));
+        kore_log(2,"Unauthorized User Access");
+        return login(req);
+        
     }
 
     return (KORE_RESULT_OK);
 }
 
-int getFlightsBooked(struct http_request *req) {
-    u_int16_t id;
-    char *sid;
-    struct kore_buf *buf;
-
+int getFlightsBooked(struct http_request *req)
+{
     http_populate_get(req);
 
-    /* Grab it as a string, we shouldn't free the result in sid. */
-    if (http_argument_get_string(req, "id", &sid)) {
+    int userId = getLoggedInUser(req);
+
+    if (userId && req->method == HTTP_METHOD_GET)
+    {
         SmartString *query = smart_string_new();
         smart_string_append(query, "call get_bookedflights(");
-        smart_string_append(query, sid);
+        smart_string_append_sprintf(query, "%d", userId);
         smart_string_append(query, ");");
 
         kore_log(2, query->buffer);
@@ -337,15 +352,19 @@ int getFlightsBooked(struct http_request *req) {
 
         /*Send data to page - response */
         http_response_header(req, "content-type", "application/json");
-        http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+        http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
         kore_log(2, str->buffer);
-
 
         /*Clean up smartstring - free up memory*/
         smart_string_destroy(str);
         smart_string_destroy(query);
-
+    }
+    else
+    {
+        http_response(req, 401,"Unauthorized", (unsigned)strlen("Unauthorized"));
+        kore_log(2,"Unauthorized User Access");
+        return login(req);
     }
 
     return (KORE_RESULT_OK);
