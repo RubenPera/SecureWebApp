@@ -77,7 +77,7 @@ login_validate_password(char *input_password, char *hash, char *salt) //compares
 void login_process_password(char * password, char * hash_buff, char * salt_buff)
 {
     login_generate_salt(STRING_SIZE/2, salt_buff);
-    login_hash_password(password, salt_buffer, STRING_SIZE/2, STRING_SIZE/2, hash_buff);
+    login_hash_password(password, salt_buff, STRING_SIZE/2, STRING_SIZE/2, hash_buff);
 }
 
 uint64_t time_now() {

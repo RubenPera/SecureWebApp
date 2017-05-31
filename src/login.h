@@ -12,7 +12,7 @@ void login_hash_password(char *pass, char *salt, int32_t iterations, uint32_t ou
 
 void generate_random(char *buffer, int buffer_length);
 
-char *login_generate_salt(int length);
+void *login_generate_salt(int length, char * output_buffer);
 
 bool
 login_validate_password(char *input_password, char *hash, char *salt); //compares input password to password in database
