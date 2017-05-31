@@ -36,6 +36,8 @@ void removeSessionCookie(struct http_request *req) {
 }
 
 
+
+
 //TODO: should be decrypted
 struct kore_buf *getCookieValue(struct http_request *req, char *name) {
     char *value;

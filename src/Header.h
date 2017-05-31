@@ -45,6 +45,7 @@ int createUser(struct http_request *);
 int bookFlight(struct http_request *);
 int flightOverView(struct http_request *);
 int showLoginPage(struct http_request *req);
+void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], int sizeLinks, char *links[sizeLinks]);
 
 
 // Cookie.c
@@ -69,6 +70,7 @@ void sqlToJson(SmartString *str, char *query, char *groupname);
 void DoHet(SmartString *str);
 void createBooking(int userId, int flightId);
 void getUserAirmiles(SmartString *output, int userId);
+DatabaseResult getUserWithId(int userId);
 
 
 // DatabaseResult.c
