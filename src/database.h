@@ -5,10 +5,8 @@
 #define db_user_pasword_salt 2
 #define db_user_email 3
 #define db_user_inholland_miles 4
-#define db_user_paspoort_id 5
-#define db_user_paspoort_valid_date 6
-#define db_user_role 7
-#define db_user_amount 8
+#define db_user_role 5
+#define db_user_amount 6
 
 // Values of the booking table
 #define db_booking_id 0
