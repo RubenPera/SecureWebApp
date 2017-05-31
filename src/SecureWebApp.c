@@ -114,6 +114,26 @@ int getFlights(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
+int getUsers(struct http_request * req) {
+    if (true){	//TODO: replace with code to check if user is admin
+    	char *query = "call get_all_users()";
+    	char *groupname = "Users";
+    	SmartString *str = smart_string_new();
+    	sqlToJson(str, query, groupname);
+
+    	/*Send data to page - response */
+    	http_response_header(req, "content-type", "application/json");
+    	http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+
+    	/*Clean up smartstring - free up memory*/
+    	smart_string_destroy(str);
+    } else {
+	http_response(req, 401, NULL, NULL);
+    }
+    return (KORE_RESULT_OK);
+}
+}
+
 int bookFlight(struct http_request *req) {
     u_int16_t id;
     char *sid;
