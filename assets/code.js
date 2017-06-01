@@ -22,13 +22,13 @@ $(document).ready(new Vue({
             emailError: "",
         },
         FlightOverView: {
-            FlightItem: {
-                id: 0,
-                date: '',
-                price: '',
-                flight_source: '',
-                flight_destination: '',
-                capacity: 0,
+        FlightItem: {
+            external_id: 0,
+            date: '',
+            price: '',
+            flight_source: '',
+            flight_destination: '',
+            capacity: 0,
 
             },
             Flights: [],
@@ -169,14 +169,18 @@ $(document).ready(new Vue({
         },
 
         book: function (flight) {
+            console.log("erro " + flight.external_id);
 
             //Need to also to add to wich user this flight will be added to
-            this.$http.post('/bookFlight', "id=" + flight.id).then(
+            this.$http.post('/bookFlightWithId', 'id=' + flight.external_id).then(
                 function () {
                     this.FlightOverView.showModal = false;
                     this.loadFlights();
                     this.loadLinks();
-                });
+                },
+            response => {
+                console.log("erro");
+            });
         },
         loadUser: function () {
             this.$http.get('/getUserInfo').then(response => {
