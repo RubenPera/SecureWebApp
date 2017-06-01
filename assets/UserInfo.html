@@ -1,0 +1,67 @@
+<div class="headerimg">
+    <div class='title'>
+        <h3>User Info And Flights</h3>
+    </div>
+
+</div>
+
+<div class="content">
+    <div id="userinfoapp" class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="settings">
+                    <button class="btn btn-default" data-toggle="modal" data-target="#settingsModal">
+                        <span class="glyphicon glyphicon-cog"></span> Settings
+                    </button>
+                </div>
+                <h2> User Information </h2>
+
+                <div class="box">
+
+                    <table class="table" id="userinfo">
+                        <tr>
+                            <th>Username:</th>
+                            <td>{{UserInfo.UserInfo.email}}</td>
+                        </tr>
+                        <tr>
+                            <th>AirMiles:</th>
+                            <td>{{UserInfo.UserInfo.inholland_miles}}</td>
+                        </tr>
+
+                    </table>
+                </div>
+
+                <h2>Booked Flights</h2>
+                <div id="userFlights">
+
+                    <form id="search">
+                        Departure <input name="query" v-model="UserInfo.query"> Destination <input name="query2"
+                                                                                          v-model="UserInfo.query2">
+
+                    </form>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Departure</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Price (AirMiles)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="flight in tableFilter">
+                            <td>{{flight.flight_source}}</td>
+                            <td>{{flight.flight_destination}}</td>
+                            <td>{{flight.date}}</td>
+                            <td>{{flight.price}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+</div>

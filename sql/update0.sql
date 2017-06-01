@@ -3,8 +3,7 @@ alter table session
 add session_id int not null;
 
 SET SQL_SAFE_UPDATES = 0;
-SET GLOBAL event_scheduler = ON;s
-
+SET GLOBAL event_scheduler = ON;
 -- create stored procedure
 delimiter //
 create procedure purge_session()
@@ -131,5 +130,79 @@ create procedure get_user_salt_hash_with_email(in email_var varchar(255))
 	begin
 		select user.pasword_salt, user.pasword_hash from user
 		where email = email_var;
+	end //
+delimiter ;
+
+delimiter //
+create procedure create_session_row(in userId int,in sessionId int)
+	begin
+		insert into
+        session(user_id, last_use, session_id)
+		values(userId, now(), sessionId);
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_user_id_from_session(in sessionId int)
+	begin
+		select user_id from session
+		where session_id = sessionId;
+	end //
+delimiter ;
+
+alter table session
+modify session_id varchar(256) not null;
+
+drop procedure get_user_id_from_session;
+
+delimiter //
+create procedure get_user_id_from_session(in sessionId varchar(256))
+	begin
+		select user_id from session
+		where session_id = sessionId;
+	end //
+delimiter ;
+
+drop procedure get_user_with_session;
+
+delimiter //
+create procedure get_user_with_session(in sessionId varchar(256))
+	begin
+		select * from user
+		where id = (
+		select session.user_id
+		from session
+		where session.session_id = session_id_var);
+	end //
+delimiter ;
+
+
+drop procedure create_session_row;
+
+delimiter //
+create procedure create_session_row(in userId int,in sessionId varchar(256))
+	begin
+		insert into
+        session(user_id, last_use, session_id)
+		values(userId, now(), sessionId);
+	end //
+delimiter ;
+
+drop procedure update_session_last_use;
+    delimiter //
+create procedure update_session_last_use(in session_id_var varchar(256))
+	begin
+		update session
+		set last_use = now()
+		where session_id = session_id_var;
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_flight_by_id(in flightId int)
+	begin
+		select *
+        from flight
+        where id = flightId;
 	end //
 delimiter ;

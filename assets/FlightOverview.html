@@ -1,172 +1,3 @@
-<html>
-
-<head>
-  <title>Flights Overview</title>
-
-  <script src="https://unpkg.com/vue"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/vue.resource/1.3.1/vue-resource.min.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
-  <style>
-    body {
-      font-family: Helvetica Neue, Arial, sans-serif;
-      font-size: 14px;
-      color: #444;
-      background-color: white;
-      background-image: url("https://s-media-cache-ak0.pinimg.com/originals/7e/cf/84/7ecf842eb871d23c8f6553f25523113a.jpg");
-      background-size: cover;
-    }
-
-    .content {
-      width: 800px;
-      margin: 0 auto;
-      padding-top: 10%;
-    }
-
-    .headerimg {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      z-index: -1;
-    }
-
-    .title h3 {
-      color: black;
-      font-size: 35px;
-      font-weight: bold;
-      text-shadow: 1px 1px 1.1px gray;
-      text-align: center;
-      padding-top: 20px;
-    }
-
-    table {
-      border: 2px solid lightblue;
-      border-radius: 3px;
-      background-color: #fff;
-    }
-
-    th {
-      background-color: lightblue;
-      color: black;
-      cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    td {
-      background-color: #f9f9f9;
-    }
-
-    th,
-    td {
-      min-width: 120px;
-      padding: 10px 20px;
-    }
-
-    th.active {
-      color: #fff;
-    }
-
-    th.active .arrow {
-      opacity: 1;
-    }
-
-    .arrow {
-      display: inline-block;
-      vertical-align: middle;
-      width: 0;
-      height: 0;
-      margin-left: 5px;
-      opacity: 0.66;
-    }
-
-    .arrow.asc {
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-bottom: 4px solid #fff;
-    }
-
-    .arrow.dsc {
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 4px solid #fff;
-    }
-    /* 
-Modal CSS stylesheet
-*/
-
-    .modal-mask {
-      position: fixed;
-      z-index: 9998;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, .5);
-      display: table;
-      transition: opacity .3s ease;
-    }
-
-    .modal-wrapper {
-      display: table-cell;
-      vertical-align: middle;
-    }
-
-    .modal-container {
-      width: 300px;
-      height: auto;
-      margin: 0px auto;
-      padding: 20px 30px;
-      background-color: #fff;
-      border-radius: 2px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-      transition: all .3s ease;
-      font-family: Helvetica, Arial, sans-serif;
-    }
-
-    .modal-footer .modal-default-button {
-      margin: 5px;
-    }
-
-    .modal-header h3 {
-      margin-top: 0;
-      color: #42b983;
-    }
-
-    .modal-body {
-      margin: 20px 0;
-    }
-
-    .modal-default-button {
-      float: right;
-    }
-
-    .modal-enter {
-      opacity: 0;
-    }
-
-    .modal-leave-active {
-      opacity: 0;
-    }
-
-    .modal-enter .modal-container,
-    .modal-leave-active .modal-container {
-      -webkit-transform: scale(1.1);
-      transform: scale(1.1);
-    }
-  </style>
-
-
-
-
-</head>
-
-
-<body>
   <div class="headerimg">
     <div class='title'>
       <h3>Available flights</h3>
@@ -176,21 +7,21 @@ Modal CSS stylesheet
 
   <div class="content">
 
-    <div id="app" class="container">
+    <div id="flightOverView" class="container">
       <form id="search">
-        Departure <input name="query" v-model="query"> Destination <input name="query2" v-model="query2">
+        Departure <input name="query" v-model="FlightOverView.query"> Destination <input name="query2" v-model="FlightOverView.query2">
 
       </form>
 
-      <modal v-if="showModal" @close="showModal = false">
+      <modal v-if="FlightOverView.showModal" @close="FlightOverView.showModal = false">
         <h3 slot="header">Flight Information</h3>
         <div slot="body">
-          From: {{FlightItem.flight_source}}<br> To: {{FlightItem.flight_destination}}<br> Date: {{FlightItem.date}}<br>          AirMiles: {{FlightItem.price}}<br>
+          From: {{FlightOverView.FlightItem.flight_source}}<br> To: {{FlightOverView.FlightItem.flight_destination}}<br> Date: {{FlightOverView.FlightItem.date}}<br>          AirMiles: {{FlightOverView.FlightItem.price}}<br>
         </div>
 
         <div slot="footer">
-          <button class="modal-default-button" @click="showModal = false"> Cancel </button>
-          <button class="modal-default-button" @click="book(FlightItem)"> Book </button>
+          <button class="modal-default-button" @click="FlightOverView.showModal = false"> Cancel </button>
+          <button class="modal-default-button" @click="book(FlightOverView.FlightItem)"> Book </button>
         </div>
 
       </modal>
@@ -224,93 +55,9 @@ Modal CSS stylesheet
     </div>
 
   </div>
-</body>
-
-</html>
-
-
-<script>
-  Vue.component('modal', {
-    template: '#modal-template'
-  })
-
-  $(document).ready(function () {
-    new Vue({
-      el: '#app',
-
-      data: {
-        FlightItem: {
-          id: 0,
-          date: '',
-          price: '',
-          flight_source: '',
-          flight_destination: '',
-          capacity: 0,
-
-        },
-        Flights: [],
-        showModal: false,
-        query: '',
-        query2: '',
-      },
-
-      mounted: function () {
-        this.loadFlights();
-      },
-
-      computed: {
-        tableFilter: function () {
-          return this.findBy(this.Flights, this.query, this.query2, 'flight_source', 'flight_destination')
-        }
-
-      },
-      methods: {
-
-        findBy: function (list, value, value2, column, col2) {
-          return list.filter(function (item) {
-            return item[column].includes(value) && item[col2].includes(value2)
-          })
-        },
-
-        loadFlights: function () {
-          var _this = this;
-
-          this.$http.get('/getFlights').then(response => {
-
-            // get body data
-            _this.Flights = response.body.Flights;
-
-          }, response => {
-            // error callback
-          });
-        },
-
-        loadFlight: function (Flight) {
-          this.FlightItem = Flight;
-          this.showModal = true;
-
-        },
-
-        book: function (flight) {
-          var _this = this;
-          console.log(flight.id);
-          console.log("kawkakwakwaw");
-          //Need to also to add to wich user this flight will be added to
-          this.$http.post('/bookFlight', "id="+ flight.id).then(
-            function () {
-              this.showModal = false;
-              this.loadFlights();
-            });
-        },
-      }
-    });
-
-  });
-
-</script>
 
 <!-- template for the modal component -->
-<script type="text/x-template" id="modal-template">
+<script type="text/x-template" id="flightOverView-modal-template">
   <transition name="modal">
     <div class="modal-mask">
       <div class="modal-wrapper">
