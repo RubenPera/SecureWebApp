@@ -45,25 +45,24 @@ void hax_encode(char *input, int input_length, char *buffer);
 
 void generate_random(char *buffer, int buffer_length);
 
-uint64_t time_now();
+uint64_t time_now(void);
 
-void login_hash_password(char *pass, char *salt, int32_t iterations, uint32_t outputBytes,
+void login_hash_password(const char *pass, const unsigned char *salt, int32_t iterations, uint32_t outputBytes,
                          char *hexResult) //hashes the password using PBKDF2 sha512
 {
     unsigned char digest[outputBytes];
-    PKCS5_PBKDF2_HMAC(pass, strlen(pass), salt, strlen(salt), iterations, EVP_sha512(), outputBytes, digest);
-    hax_encode(digest, sizeof(digest), hexResult);
+    PKCS5_PBKDF2_HMAC(pass, strlen(pass), salt, strlen((const char *)salt), iterations, EVP_sha512(), outputBytes, digest);
+    hax_encode((char *)digest, sizeof(digest), hexResult);
 }
 
-bool
-login_validate_password(char *input_password, char *hash, char *salt) //compares input password to password in database
+bool login_validate_password(const char *input_password, const char *hash, const unsigned char *salt) //compares input password to password in database
 {
     char backup[STRING_SIZE + 1];
     strcpy(backup, hash);
     uint64_t start = time_now();        //get the starttime of the function in microseconds
     char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
 
-    login_hash_password(input_password, salt, LOGIN_HASH_ITERATIONS, STRING_SIZE/2,
+    login_hash_password(input_password, salt, STRING_SIZE/2, STRING_SIZE/2,
                         hashed_input); //hash the password input by the user with the salt in the database
 
     int correct = 0;
@@ -77,10 +76,10 @@ login_validate_password(char *input_password, char *hash, char *salt) //compares
 void login_process_password(char * password, char * hash_buff, char * salt_buff)
 {
     login_generate_salt(STRING_SIZE/2, salt_buff);
-    login_hash_password(password, salt_buff, STRING_SIZE/2, STRING_SIZE/2, hash_buff);
+    login_hash_password(password, (const unsigned char *)salt_buff, STRING_SIZE/2, STRING_SIZE/2, hash_buff);
 }
 
-uint64_t time_now() {
+uint64_t time_now(void) {
     struct timeval tv;
     gettimeofday(&tv, NULL);    //get current time, write to timeval struct
     return tv.tv_sec * 1000 +
