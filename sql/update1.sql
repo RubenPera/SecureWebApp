@@ -50,3 +50,12 @@ create procedure set_airMiles_for_userId(in userId int, in airMiles int)
 		where user.id = userId;
 	end //
 delimiter ;
+
+delimiter //
+create procedure update_password_for_userId(in userId int, in newhash varchar(255))
+	begin
+		update user
+		set user.pasword_hash  = newhash
+		where user.id = userId;
+	end //
+delimiter ;

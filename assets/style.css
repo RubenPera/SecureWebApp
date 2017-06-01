@@ -49,22 +49,12 @@
     border-right: 10px dashed red;
 }
 
-.divider {
-    width: 1px;
-    height: 100%;
-    background-color: #333;
-    opacity: 0.12;
-}
 
 .fly {
     width: 160px;
     height: 150px;
 }
 
-.content {
-
-    padding-left: 20%;
-}
 
 body {
     font-family: Helvetica Neue, Arial, sans-serif;
