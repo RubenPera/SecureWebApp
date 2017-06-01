@@ -230,7 +230,7 @@ DatabaseResult getAllFlights() {
 
     _dbDisconnect(conn);
     DatabaseResult dbResult;
-    dbResult = init_DatabaseResult(mysql_stmt_num_rows(stmt), i);
+    dbResult = init_DatabaseResult((unsigned int)mysql_stmt_num_rows(stmt), i);
     unsigned int y = 0;
     while (!mysql_stmt_fetch(stmt)) {
         set_DatabaseResult(dbResult, y, db_flight_id, (char *) flightId_parm);
@@ -732,7 +732,7 @@ DatabaseResult getFlightWithId(int flightId) {
 
     memset(inputBind, 0, sizeof(inputBind));
 
-    fillInputBindLong(bind, 0, &flightId);
+    fillInputBindLong(inputBind, 0, &flightId);
 
     if (mysql_stmt_store_result(stmt)) {
         kore_log(2, " mysql_stmt_store_result() failed\n");
@@ -766,7 +766,7 @@ DatabaseResult getFlightWithId(int flightId) {
 
     _dbDisconnect(conn);
     DatabaseResult dbResult;
-    dbResult = init_DatabaseResult(mysql_stmt_num_rows(stmt), i);
+    dbResult = init_DatabaseResult((unsigned int)mysql_stmt_num_rows(stmt), i);
     unsigned int y = 0;
     while (!mysql_stmt_fetch(stmt)) {
         set_DatabaseResult(dbResult, y, db_flight_id, (char *) flightId_param);
@@ -942,7 +942,7 @@ void fillOutputBindLong(MYSQL_BIND *bind, unsigned int i, int *param, my_bool *i
     bind[i].error = &error[i];
 }
 
-void fillOutputBindString(MYSQL_BIND *bind, unsigned int i, char **param, my_bool *is_null, unsigned long *length,
+void fillOutputBindString(MYSQL_BIND *bind, unsigned int i, char ** param, my_bool *is_null, unsigned long *length,
                           my_bool *error) {
     bind[i].buffer_type = MYSQL_TYPE_STRING;
     bind[i].buffer = (char *) param;
@@ -962,7 +962,7 @@ void fillOutputBindDate(MYSQL_BIND *bind, unsigned int i, MYSQL_TIME *param, my_
     bind[i].error = &error[i];
 }
 
-void fillInputBindString(MYSQL_BIND *bind, unsigned int i, char **param, unsigned long *length) {
+void fillInputBindString(MYSQL_BIND *bind, unsigned int i, char ** param, unsigned long *length) {
 
     bind[i].buffer_type = MYSQL_TYPE_STRING;
     bind[i].buffer = (char *) param;
