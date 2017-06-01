@@ -26,24 +26,33 @@ var masterPage = new Vue({
             flight_destination: '',
             capacity: 0,
 
-        },
-        Flights: [],
-        showModal: false,
-        query: '',
-        query2: '',
+            },
+            Flights: [],
+            showModal: false,
+            query: '',
+            query2: '',
         },
         UserInfo: {
             UserInfo: {
                 email: '',
                 inholland_miles: 0,
             },
-
+            showModal: false,
             Flights: [],
             query: '',
             query2: '',
+
+            ChangePass:
+            {
+                old: '',
+                new: '',
+                error: "",
+            }
+
+
         },
         Admin: {
-            Users :[],
+            Users: [],
         }
 
 
@@ -70,11 +79,10 @@ var masterPage = new Vue({
                 // get body data
                 this.Links = response.body.Links;
 
-        },
-            response =>
-            {
-                // error callback
-            });
+            },
+                response => {
+                    // error callback
+                });
         },
         validateEmail: function () {
             if (this.isValidLoginEmail()) {
@@ -94,21 +102,44 @@ var masterPage = new Vue({
             if (this.login.email && this.login.password && this.isValidLoginEmail()) {
                 this.$http.post('/login', 'email=' + this.login.email + '&password=' + this.login.password).then(response => {
                     console.log(response.status);
-                if (response.ok) {
-                    window.location.href = "/";
+                    if (response.ok) {
+                        window.location.href = "/";
 
-                }
-            },
-                response =>
-                {
-                    this.login.password = "";
-                    this.login.error = "The provided credentials are incorrect!";
-                });
+                    }
+                },
+                    response => {
+                        this.login.password = "";
+                        this.login.error = "The provided credentials are incorrect!";
+                    });
             } else {
                 this.login.error = "No fields can be empty";
 
             }
         },
+
+        changePassword: function () {
+            if (this.UserInfo.ChangePass.old &&  this.UserInfo.ChangePass.new) {
+                this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old +
+                '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
+                    console.log(response.status);
+                    if (response.ok) {
+                        window.location.href = "/";
+
+                    }
+                },
+                    response => {
+                        this.UserInfo.ChangePass.old = "";
+                        this.UserInfo.ChangePass.new = "";
+                        this.UserInfo.ChangePass.error = "The provided credentials are incorrect!";
+                    });
+            } else {
+                this.UserInfo.ChangePass.error = "No fields can be empty";
+
+            }
+        },
+
+
+
         findBy: function (list, value, value2, column, col2) {
             return list.filter(function (item) {
                 return item[column].includes(value) && item[col2].includes(value2)
@@ -122,7 +153,7 @@ var masterPage = new Vue({
                 this.FlightOverView.Flights = response.body.Flights;
                 this.UserInfo.Flights = response.body.Flights;
 
-        }, response => {
+            }, response => {
                 // error callback
             });
         },
@@ -160,23 +191,23 @@ var masterPage = new Vue({
         }
         },
         loadUser: function () {
-            this.$http.get('/getUserInfo?id=1').then(response => {
+            this.$http.get('/getUserInfo').then(response => {
 
                 // get body data
-                this.UserInfo.UserInfo = response.body.Users[0];
+                this.UserInfo.UserInfo = response.body.Users;
+
+            },
+                response => {
+                    // error callback
+                });
         },
-            response =>
-            {
-                // error callback
-            });
-        },
-        adminLoadUsers: function(){
-            this.$http.get('/adminGetUsers').then(response =>{
+        adminLoadUsers: function () {
+            this.$http.get('/adminGetUsers').then(response => {
                 this.Admin.Users = response.body.Users;
             },
-            response =>
-            {
-            });
+                response => {
+                    // error callback
+                });
         },
         sendNewMiles: function(user) {
             if (confirm('Are you sure want to change the airMiles of "' + user.email + '" to "' + user.newMiles +'" ?\n Press OK to change this user his airMiles') == true) {

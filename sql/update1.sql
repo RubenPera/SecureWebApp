@@ -112,3 +112,12 @@ delimiter ;
 
 insert into flight(date, price, flight_source, flight_destination, capacity, external_id)
 values(now(), 200, 'abc', 'cba', 200, (FLOOR( 1 + RAND( ) *6000 )));
+
+delimiter //
+create procedure update_password_for_userId(in userId int, in newhash varchar(255))
+	begin
+		update user
+		set user.pasword_hash  = newhash
+		where user.id = userId;
+	end //
+delimiter ;
