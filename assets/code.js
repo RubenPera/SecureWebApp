@@ -22,13 +22,13 @@ $(document).ready(new Vue({
             emailError: "",
         },
         FlightOverView: {
-        FlightItem: {
-            external_id: 0,
-            date: '',
-            price: '',
-            flight_source: '',
-            flight_destination: '',
-            capacity: 0,
+            FlightItem: {
+                external_id: 0,
+                date: '',
+                price: '',
+                flight_source: '',
+                flight_destination: '',
+                capacity: 0,
 
             },
             Flights: [],
@@ -64,6 +64,9 @@ $(document).ready(new Vue({
     computed: {
         tableFilter: function () {
             return this.findBy(this.FlightOverView.Flights, this.FlightOverView.query, this.FlightOverView.query2, 'flight_source', 'flight_destination')
+        },
+        tableFilter2: function () {
+            return this.findBy(this.UserInfo.Flights, this.UserInfo.query, this.UserInfo.query2, 'flight_source', 'flight_destination')
         }
 
     },
@@ -122,15 +125,15 @@ $(document).ready(new Vue({
         },
 
         changePassword: function () {
-            if (this.UserInfo.ChangePass.old &&  this.UserInfo.ChangePass.new) {
-                this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old + 
-                '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
-                    console.log(response.status);
-                    if (response.ok) {
-                        window.location.href = "/";
+            if (this.UserInfo.ChangePass.old && this.UserInfo.ChangePass.new) {
+                this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old +
+                    '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
+                        console.log(response.status);
+                        if (response.ok) {
+                            window.location.href = "/";
 
-                    }
-                },
+                        }
+                    },
                     response => {
                         this.UserInfo.ChangePass.old = "";
                         this.UserInfo.ChangePass.new = "";
@@ -155,11 +158,21 @@ $(document).ready(new Vue({
 
                 // get body data
                 this.FlightOverView.Flights = response.body.Flights;
+
+            }, response => {
+                // error callback
+            });
+            this.$http.get('/getFlightsBooked').then(response => {
+
+                // get body data
                 this.UserInfo.Flights = response.body.Flights;
 
             }, response => {
                 // error callback
             });
+
+
+
         },
 
         loadFlight: function (Flight) {
@@ -178,9 +191,9 @@ $(document).ready(new Vue({
                     this.loadFlights();
                     this.loadLinks();
                 },
-            response => {
-                console.log("erro");
-            });
+                response => {
+                    console.log("erro");
+                });
         },
         loadUser: function () {
             this.$http.get('/getUserInfo').then(response => {
