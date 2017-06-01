@@ -1,23 +1,26 @@
 
 #include "Header.h"
 
-
 // Returns userId if a user is logged in
 // Returns false if a user is not logged in
-int getLoggedInUser(struct http_request *req) {
+int getLoggedInUser(struct http_request *req)
+{
     http_populate_cookies(req);
 
     struct kore_buf *buffer;
     buffer = getSessionCookieValue(req);
-    if (buffer != NULL && buffer->data != NULL) {
+    if (buffer != NULL && buffer->data != NULL)
+    {
         return getUserIdWithSession(buffer->data);
     }
     return false;
 }
 
-int page(struct http_request *req) {
+int page(struct http_request *req)
+{
     int userId = getLoggedInUser(req);
-    if (userId) {
+    if (userId)
+    {
         struct kore_buf *cookieValue;
         cookieValue = getSessionCookieValue(req);
 
@@ -31,42 +34,50 @@ int page(struct http_request *req) {
         kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
         http_response(req, 200, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         return login(req);
     }
 }
 
 // Returns the Login page
-int login(struct http_request *req) {
+int login(struct http_request *req)
+{
     struct kore_buf *buffer;
     char *login_email_param = NULL;
     char *login_password_param = NULL;
 
-    if (getLoggedInUser(req)) {
+    if (getLoggedInUser(req))
+    {
         return page(req);
     }
 
-
-    if (req->method == HTTP_METHOD_POST) {
+    if (req->method == HTTP_METHOD_POST)
+    {
         http_populate_post(req);
         if (KORE_RESULT_OK == http_argument_get_string(req, "email", &login_email_param) &&
-            KORE_RESULT_OK == http_argument_get_string(req, "password", &login_password_param)) {
+            KORE_RESULT_OK == http_argument_get_string(req, "password", &login_password_param))
+        {
             DatabaseResult dbResult;
             dbResult = getIdSaltHashWithEmail(login_email_param);
 
             bool isAuthenticated = login_validate_password(login_password_param, get_DatabaseResult(dbResult, 0, 2),
-                                                get_DatabaseResult(dbResult, 0, 1));
-            if (!isAuthenticated) {
+                                                           get_DatabaseResult(dbResult, 0, 1));
+            if (!isAuthenticated)
+            {
                 http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
                 return (KORE_RESULT_OK);
             }
 
             http_populate_cookies(req);
-            createSessionCookie(req, (int) get_DatabaseResult(dbResult, 0, 0));
+            createSessionCookie(req, (int)get_DatabaseResult(dbResult, 0, 0));
 
             http_response(req, 200, NULL, NULL);
             return (KORE_RESULT_OK);
-        } else {
+        }
+        else
+        {
             http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
             return (KORE_RESULT_OK);
         }
@@ -74,15 +85,18 @@ int login(struct http_request *req) {
     return showLoginPage(req);
 }
 
-int createUser(struct http_request *req) {
+int createUser(struct http_request *req)
+{
 
     http_response(req, 200, NULL, NULL);
     return (KORE_RESULT_OK);
 }
 
-int flightOverView(struct http_request *req) {
+int flightOverView(struct http_request *req)
+{
     int userId = getLoggedInUser(req);
-    if (userId) {
+    if (userId)
+    {
         struct kore_buf *buffer = kore_buf_alloc(asset_len_MasterPage_html);
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
@@ -90,12 +104,15 @@ int flightOverView(struct http_request *req) {
         kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
         http_response(req, 200, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         return login(req);
     }
 }
 
-int getFlights(struct http_request *req) {
+int getFlights(struct http_request *req)
+{
     char *query = "call get_all_flights()";
     char *groupName = "Flights";
     SmartString *str = smart_string_new();
@@ -103,7 +120,7 @@ int getFlights(struct http_request *req) {
 
     /*Send data to page - response */
     http_response_header(req, "content-type", "application/json");
-    http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+    http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
 
     /*Clean up smartstring - free up memory*/
     smart_string_destroy(str);
@@ -111,40 +128,15 @@ int getFlights(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
-<<<<<<< HEAD
-int getUsers(struct http_request * req) {
-    if (true){	//TODO: replace with code to check if user is admin
-    	char *query = "call get_all_users()";
-    	char *groupname = "Users";
-    	SmartString *str = smart_string_new();
-    	sqlToJson(str, query, groupname);
-
-    	/*Send data to page - response */
-    	http_response_header(req, "content-type", "application/json");
-    	http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
-
-    	/*Clean up smartstring - free up memory*/
-    	smart_string_destroy(str);
-    } else {
-	http_response(req, 401, NULL, NULL);
-    }
-    return (KORE_RESULT_OK);
-}
-}
-
-int bookFlight(struct http_request *req) {
-    u_int16_t id;
-    char *sid;
-    struct kore_buf *buf;
-=======
-int getLinks(struct http_request *req) {
->>>>>>> b5186a11e90e2d30f471a2d88d56036b576a5b52
+int getLinks(struct http_request *req)
+{
     int userId = getLoggedInUser(req);
     kore_log(2, "userId = %d", userId);
-    if (userId) {
+    if (userId)
+    {
 
         DatabaseResult dbResult = getUserWithId(userId);
-        int role = (int) get_DatabaseResult(dbResult, 0, 5);
+        int role = (int)get_DatabaseResult(dbResult, 0, 5);
         kore_log(2, "Role = %d", role);
 
         SmartString *str = smart_string_new();
@@ -154,7 +146,7 @@ int getLinks(struct http_request *req) {
         /*Creating a json array*/
 
         char *email = get_DatabaseResult(dbResult, 0, db_user_email);
-        int miles = (int) get_DatabaseResult(dbResult, 0, db_user_inholland_miles);
+        int miles = (int)get_DatabaseResult(dbResult, 0, db_user_inholland_miles);
 
         char strMiles[sizeof(miles)];
         sprintf(strMiles, "%d", miles);
@@ -167,14 +159,20 @@ int getLinks(struct http_request *req) {
 
         kore_log(2, "test %s", userInfo->buffer);
 
-        if (role == 1) {
+        if (role == 1)
+        {
             // admin
-            char *texts[] = {"Flights", "Admin panel" "Logout",};
+            char *texts[] = {
+                "Flights", "Admin panel"
+                           "Logout",
+            };
             char *links[] = {"flightOverView", "", "logout"};
             fillLinks(container, (sizeof(texts) / sizeof(char *)), texts, (sizeof(links) / sizeof(char *)), links);
-        } else if (role == 0) {
+        }
+        else if (role == 0)
+        {
             // normal user
-            char *texts[] = {"Flights", "Logout", (char *) userInfo->buffer};
+            char *texts[] = {"Flights", "Logout", (char *)userInfo->buffer};
             char *links[] = {"flightOverView", "logout", "userInfo"};
             fillLinks(container, (sizeof(texts) / sizeof(char *)), texts, (sizeof(links) / sizeof(char *)), links);
         }
@@ -185,20 +183,24 @@ int getLinks(struct http_request *req) {
         http_response_header(req, "content-type", "application/json");
 
         http_response(req, 200, str->buffer, (
-                unsigned) strlen(str->buffer));
+                                                 unsigned)strlen(str->buffer));
 
         smart_string_destroy(str);
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         http_response(req, 200, NULL, NULL);
         return (KORE_RESULT_OK);
     }
 }
 
-void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], int sizeLinks, char *links[sizeLinks]) {
+void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], int sizeLinks, char *links[sizeLinks])
+{
     json_object *jsonLinks = json_object_new_array();
 
-    for (int i = 0; i < sizeTexts; i++) {
+    for (int i = 0; i < sizeTexts; i++)
+    {
         json_object *text = json_object_new_string(texts[i]);
         json_object *link = json_object_new_string(links[i]);
 
@@ -210,53 +212,63 @@ void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], in
     }
 
     json_object_object_add(container, "Links", jsonLinks);
-
 }
 
-int getLoggedInUserName(struct http_request *req) {
+int getLoggedInUserName(struct http_request *req)
+{
     int userId = getLoggedInUser(req);
-    if (userId) {
-
-    } else {
+    if (userId)
+    {
+    }
+    else
+    {
         http_response(req, 200, NULL, NULL);
         return (KORE_RESULT_OK);
     }
-
 }
 
-int bookFlight(struct http_request *req) {
+int bookFlight(struct http_request *req)
+{
     u_int16_t id;
 
     int userId = getLoggedInUser(req);
-    if (userId) {
+    if (userId)
+    {
         http_populate_post(req);
 
         /* Grab it as an actual u_int16_t. */
-        if (http_argument_get_uint16(req, "id", &id)) {
+        if (http_argument_get_uint16(req, "id", &id))
+        {
             createBooking(userId, id);
         }
         http_response(req, 200, NULL, NULL);
 
         return (KORE_RESULT_OK);
-    } else {
+    }
+    else
+    {
         return (KORE_RESULT_ERROR);
     }
 }
 
-validate_password_regex() {
+validate_password_regex()
+{
     // ^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "])(?=.*[A-Z]).*$
 }
 
 // Returns the Login page
 // Logs out the currenty logged in user by removing the session cookie
-int logout(struct http_request *req) {
-    if (getLoggedInUser(req)) {
+int logout(struct http_request *req)
+{
+    if (getLoggedInUser(req))
+    {
         removeSessionCookie(req);
     }
     return showLoginPage(req);
 }
 
-int showLoginPage(struct http_request *req) {
+int showLoginPage(struct http_request *req)
+{
     struct kore_buf *buffer;
     buffer = kore_buf_alloc(asset_len_MasterPage_html);
     kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
@@ -266,7 +278,6 @@ int showLoginPage(struct http_request *req) {
     http_response(req, 200, buffer->data, buffer->offset);
     return (KORE_RESULT_OK);
 }
-
 
 int userInfo(struct http_request *req)
 {
@@ -285,8 +296,8 @@ int userInfo(struct http_request *req)
         return (KORE_RESULT_OK);
     }
     else
-    {        
-        kore_log(2,"Unauthorized User Access");
+    {
+        kore_log(2, "Unauthorized User Access");
         return login(req);
     }
 }
@@ -322,10 +333,9 @@ int getUserInfo(struct http_request *req)
     }
     else
     {
-        http_response(req, 401,"Unauthorized", (unsigned)strlen("Unauthorized"));
-        kore_log(2,"Unauthorized User Access");
+        http_response(req, 401, "Unauthorized", (unsigned)strlen("Unauthorized"));
+        kore_log(2, "Unauthorized User Access");
         return login(req);
-        
     }
 
     return (KORE_RESULT_OK);
@@ -362,17 +372,16 @@ int getFlightsBooked(struct http_request *req)
     }
     else
     {
-        http_response(req, 401,"Unauthorized", (unsigned)strlen("Unauthorized"));
-        kore_log(2,"Unauthorized User Access");
+        http_response(req, 401, "Unauthorized", (unsigned)strlen("Unauthorized"));
+        kore_log(2, "Unauthorized User Access");
         return login(req);
     }
 
     return (KORE_RESULT_OK);
 }
-<<<<<<< HEAD
-=======
 
-int serve_css(struct http_request *req) {
+int serve_css(struct http_request *req)
+{
 
     http_response_header(req, "content-type", "text/css");
     http_response(req, 200, asset_style_css, asset_len_style_css);
@@ -380,11 +389,11 @@ int serve_css(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
-int serve_js(struct http_request * req){
+int serve_js(struct http_request *req)
+{
 
     http_response_header(req, "content-type", "text/javascript");
     http_response(req, 200, asset_code_js, asset_len_code_js);
 
     return (KORE_RESULT_OK);
 }
->>>>>>> b5186a11e90e2d30f471a2d88d56036b576a5b52
