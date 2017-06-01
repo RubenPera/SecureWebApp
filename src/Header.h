@@ -83,6 +83,8 @@ void fillOutputBindDate(MYSQL_BIND *bind, unsigned int i, MYSQL_TIME *param, my_
                         my_bool *error) ;
 void fillInputBindString(MYSQL_BIND *bind, unsigned int i, char ** param, unsigned long *length);
 void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param);
+DatabaseResult getFlightWithExternalId(int externalId);
+void cancelFlight(int flightId);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);

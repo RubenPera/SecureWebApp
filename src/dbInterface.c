@@ -326,109 +326,90 @@ void DoHet(SmartString *str)
 
 void createBooking(int userId, int flightId)
 {
+    kore_log(1, "createBooking");
     MYSQL *conn;
-    MYSQL_RES *result;
-    MYSQL_ROW userRow;
-    MYSQL_ROW flightRow;
-    int *flightPrice = 0;
-    int *userAirmiles = 0;
-    SmartString *updateFlight = smart_string_new();
-    SmartString *updateBooking = smart_string_new();
-    SmartString *getFlightPriceQuery = smart_string_new();
-    SmartString *getUserAirmilesQuery = smart_string_new();
-    SmartString *updateUserAirmilesQuery = smart_string_new();
+    MYSQL_STMT *stmt;
+    MYSQL_BIND bind[2];
 
-    /*Connect to db*/
+    unsigned  int i = 0;
+
     conn = mysql_init(NULL);
     _dbConnect(conn);
+    char *query = "call create_booking_and_update_money(?,?)";
 
-    /*Create query for getting airmiles by userId*/
-    createGetUserAirmilesQuery(getUserAirmilesQuery, userId);
-    createGetFlightPriceQuery(getFlightPriceQuery, flightId);
-
-    mysql_query(conn, getUserAirmilesQuery->buffer);
-    result = mysql_store_result(conn);
-    if (result != NULL)
-    {
-        kore_log(2, getUserAirmilesQuery->buffer);
-        userRow = mysql_fetch_row(result);
-        userAirmiles = atoi(userRow[0]);
-        kore_log(2, userRow[0]);
-        mysql_free_result(result);
-        result = NULL;
-        mysql_next_result(conn);
-    }
-    else
-    {
-        kore_log(2, "Error: ResultNullexception");
+    stmt = mysql_stmt_init(conn);
+    if (!stmt) {
+        kore_log(1, "mysql_stmt_init out of memory");
     }
 
-    mysql_query(conn, getFlightPriceQuery->buffer);
-    result = mysql_store_result(conn);
-
-    if (result != NULL)
-    {
-        kore_log(2, getFlightPriceQuery->buffer);
-        flightRow = mysql_fetch_row(result);
-        flightPrice = atoi(flightRow[0]);
-        kore_log(2, flightRow[0]);
-        result = NULL;
-        mysql_next_result(conn);
-    }
-    else
-    {
-        kore_log(2, "Error: ResultNullexception");
+    if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+        kore_log(1, "error");
     }
 
-    if (userAirmiles >= flightPrice)
-    {
-        /*Create a query for decreasing capacity of flight by 1 */
-        createUpdateFlightCapacityQuery(updateFlight, flightId);
-        kore_log(2, updateFlight->buffer);
-        if (mysql_query(conn, updateFlight->buffer) != 0)
-        {
-            kore_log(2, "UPDATE Flight failed: Stopping booking..");
-        }
-        else
-        {
+    memset(bind, 0, sizeof(bind));
 
-            /*Create a qeury for inserting a booking into the booking table */
-            createInsertBookingQuery(updateBooking, userId, flightId);
-            kore_log(2, updateBooking->buffer);
-            if (mysql_query(conn, updateBooking->buffer) != 0)
-            {
-                kore_log(2, "INSERT INTO Booking failed: Stopping booking..");
-            }
-            else
-            {
+    fillInputBindLong(bind, i++, &userId);
+    fillInputBindLong(bind, i++, &flightId);
 
-                createUpdateUserAirMilesQuery(updateUserAirmilesQuery, userId, flightPrice);
-                kore_log(2, updateUserAirmilesQuery->buffer);
-                if (mysql_query(conn, updateUserAirmilesQuery->buffer) != 0)
-                {
-                    kore_log(2, "UPDATE User failed: Stopping booking..");
-                }
-                else
-                {
-                    kore_log(2, "Booking transaction succeeded.");
-                }
-            }
-        }
-    }
-    else
-    {
-        kore_log(2, "not enought moneys");
+    if (mysql_stmt_bind_param(stmt, bind)) {
+        kore_log(2, "ERROR");
     }
 
-    /*Disconnect from db*/
+    if (mysql_stmt_store_result(stmt)) {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+
+        kore_log(2, "ERROR executing");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+
+    }
+    mysql_stmt_close(stmt);
     _dbDisconnect(conn);
+}
 
-    /*Destroy/ Clean up smartstrings*/
-    smart_string_destroy(updateFlight);
-    smart_string_destroy(updateBooking);
-    smart_string_destroy(getFlightPriceQuery);
-    smart_string_destroy(getUserAirmilesQuery);
-    smart_string_destroy(updateUserAirmilesQuery);
+void cancelFlight(int flightId){
+    kore_log(1, "cancelFlight");
+    MYSQL *conn;
+    MYSQL_STMT *stmt;
+    MYSQL_BIND bind[1];
+
+    unsigned  int i = 0;
+
+    conn = mysql_init(NULL);
+    _dbConnect(conn);
+    char *query = "call cancel_booking(?)";
+
+    stmt = mysql_stmt_init(conn);
+    if (!stmt) {
+        kore_log(1, "mysql_stmt_init out of memory");
+    }
+
+    if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+        kore_log(1, "error");
+    }
+
+    memset(bind, 0, sizeof(bind));
+
+    fillInputBindLong(bind, i++, &flightId);
+
+    if (mysql_stmt_bind_param(stmt, bind)) {
+        kore_log(2, "ERROR");
+    }
+
+    if (mysql_stmt_store_result(stmt)) {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+
+        kore_log(2, "ERROR executing");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+
+    }
+    mysql_stmt_close(stmt);
+    _dbDisconnect(conn);
 }
 
 void getUserAirmiles(SmartString *output, int userId) {
@@ -734,7 +715,7 @@ DatabaseResult getFlightWithId(int flightId) {
     conn = mysql_init(NULL);
     _dbConnect(conn);
 
-    char *query = "call get_all_flights();";
+    char *query = "call get_all_flights(?);";
 
     stmt = mysql_stmt_init(conn);
     if (!stmt) {
@@ -748,6 +729,126 @@ DatabaseResult getFlightWithId(int flightId) {
     memset(inputBind, 0, sizeof(inputBind));
 
     fillInputBindLong(inputBind, 0, &flightId);
+
+    if (mysql_stmt_bind_param(stmt, inputBind)) {
+        kore_log(2, "ERROR");
+    }
+
+    if (mysql_stmt_store_result(stmt)) {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+    }
+
+    if (mysql_stmt_execute(stmt)) {
+        kore_log(2, "ERROR executing");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+
+    memset(outputBind, 0, sizeof(outputBind));
+
+    i = 0;
+    fillOutputBindLong(outputBind, i++, &flightId_param, is_null, length, error);
+    fillOutputBindDate(outputBind, i++, &date, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &price_param, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &flight_source, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &flight_destination, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &capacity_param, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &external_id_param, is_null, length, error);
+
+    /* Bind the result buffers */
+    if (mysql_stmt_bind_result(stmt, outputBind)) {
+        kore_log(2, " mysql_stmt_bind_result() failed\n");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+    if (mysql_stmt_store_result(stmt)) {
+        kore_log(2, " mysql_stmt_store_result() failed\n");
+        kore_log(2, " %s\n", mysql_stmt_error(stmt));
+    }
+
+    _dbDisconnect(conn);
+    DatabaseResult dbResult;
+    dbResult = init_DatabaseResult((unsigned int)mysql_stmt_num_rows(stmt), i);
+    unsigned int y = 0;
+    while (!mysql_stmt_fetch(stmt)) {
+        set_DatabaseResult(dbResult, y, db_flight_id, (char *) flightId_param);
+
+        SmartString *strDate = smart_string_new();
+
+        char formattedDate[20];
+        sprintf(formattedDate, "%02d-%02d-%04d", date.day, date.month, date.year);
+
+        smart_string_append(strDate, formattedDate);
+        set_DatabaseResult(dbResult, y, db_flight_date, strDate->buffer);
+
+        set_DatabaseResult(dbResult, y, db_flight_price, (char *) price_param);
+
+        SmartString *strFlight_source = smart_string_new();
+        smart_string_append(strFlight_source, flight_source);
+        set_DatabaseResult(dbResult, y, db_flight_flight_source, strFlight_source->buffer);
+
+        SmartString *strFlight_destination = smart_string_new();
+        smart_string_append(strFlight_destination, flight_destination);
+        set_DatabaseResult(dbResult, y, db_flight_flight_destination, strFlight_destination->buffer);
+
+        set_DatabaseResult(dbResult, y, db_flight_capacity, (char *) capacity_param);
+
+        set_DatabaseResult(dbResult, y, db_flight_external_id, (char *) external_id_param);
+        y++;
+    }
+
+    return dbResult;
+}
+
+DatabaseResult getFlightWithExternalId(int externalId) {
+    kore_log(1, " getFlightWithExternalId");
+    MYSQL *conn;
+    MYSQL_STMT *stmt;
+
+    unsigned int sizeOfOutPutBind = 7;
+
+    unsigned int i = 0;
+
+    MYSQL_BIND outputBind[sizeOfOutPutBind];
+    MYSQL_BIND inputBind[1];
+
+
+    int flightId_param = 0,
+            price_param = 0,
+            capacity_param = 0,
+            external_id_param = 0;
+    MYSQL_TIME date;
+
+    char flight_source[STRING_SIZE + 1];
+    flight_source[STRING_SIZE] = NULL;
+
+    char flight_destination[STRING_SIZE + 1];
+    flight_destination[STRING_SIZE] = NULL;
+
+    // MySQL bool to make pointers fully compatible
+    my_bool is_null[sizeOfOutPutBind];
+    my_bool error[sizeOfOutPutBind];
+    unsigned long length[sizeOfOutPutBind];
+
+    conn = mysql_init(NULL);
+    _dbConnect(conn);
+
+    char *query = "call get_all_flights_with_external_id(?);";
+
+    stmt = mysql_stmt_init(conn);
+    if (!stmt) {
+        kore_log(1, "mysql_stmt_init out of memory");
+    }
+
+    if (mysql_stmt_prepare(stmt, query, strlen(query))) {
+        kore_log(1, "error");
+    }
+
+    memset(inputBind, 0, sizeof(inputBind));
+
+    fillInputBindLong(inputBind, 0, &externalId);
+
+    if (mysql_stmt_bind_param(stmt, inputBind)) {
+        kore_log(2, "ERROR");
+    }
 
     if (mysql_stmt_store_result(stmt)) {
         kore_log(2, " mysql_stmt_store_result() failed\n");

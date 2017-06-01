@@ -45,7 +45,6 @@ int login(struct http_request *req) {
         return page(req);
     }
 
-
     if (req->method == HTTP_METHOD_POST) {
         http_populate_post(req);
         if (KORE_RESULT_OK == http_argument_get_string(req, "email", &login_email_param) &&
@@ -198,7 +197,7 @@ int getLinks(struct http_request *req) {
         smart_string_destroy(str);
         return (KORE_RESULT_OK);
     } else {
-        http_response(req, 200, NULL, NULL);
+        http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
         return (KORE_RESULT_OK);
     }
 }
@@ -220,24 +219,56 @@ void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], in
     json_object_object_add(container, "Links", jsonLinks);
 }
 
-int bookFlight(struct http_request *req) {
-    u_int16_t id;
-
+int bookFlightWithId(struct http_request *req) {
+    int externalId;
+    char *strExternalid;
     int userId = getLoggedInUser(req);
     if (userId) {
         http_populate_post(req);
-
         /* Grab it as an actual u_int16_t. */
-        if (http_argument_get_uint16(req, "id", &id)) {
-            createBooking(userId, id);
-        }
-        http_response(req, 200, NULL, NULL);
 
-        return (KORE_RESULT_OK);
+        if (KORE_RESULT_OK == http_argument_get_string(req, "id", &strExternalid)) {
+            externalId = atoi(strExternalid);
+
+            DatabaseResult flight = getFlightWithExternalId(externalId);
+            DatabaseResult user = getUserWithId(userId);
+
+            if ((int) get_DatabaseResult(user, 0, db_user_inholland_miles) >=
+                (int) get_DatabaseResult(flight, 0, db_flight_price)) {
+                int userId_param = (int) get_DatabaseResult(user, 0, db_user_id),
+                        flightId_param = (int) get_DatabaseResult(flight, 0, db_flight_id);
+                createBooking(userId_param, flightId_param);
+            }
+            http_response(req, 200, NULL, NULL);
+            return (KORE_RESULT_OK);
+        }
     } else {
-        return (KORE_RESULT_ERROR);
+        http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
+        return (KORE_RESULT_OK);
     }
 }
+
+int adminCancelFlightWithId(struct http_request *req) {
+    int externalId;
+    char *strExternalid;
+    int adminId = getLoggedInUser(req);
+
+    if (adminId && req->method == HTTP_METHOD_POST) {
+        DatabaseResult dbResult = getUserWithId(adminId);
+        int role = (int) get_DatabaseResult(dbResult, 0, db_user_role);
+        if (role == adminRole) {
+            http_populate_post(req);
+            if (KORE_RESULT_OK == http_argument_get_string(req, "id", &strExternalid)) {
+                externalId = atoi(strExternalid);
+                DatabaseResult flight = getFlightWithExternalId(externalId);
+                cancelFlight((int) get_DatabaseResult(flight, 0, db_flight_id));
+            }
+        }
+    }
+    http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
+    return (KORE_RESULT_OK);
+}
+
 
 validate_password_regex() {
     // ^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "])(?=.*[A-Z]).*$
@@ -329,9 +360,7 @@ int getUserInfo(struct http_request *req)
 int getFlightsBooked(struct http_request *req)
 {
     http_populate_get(req);
-
     int userId = getLoggedInUser(req);
-
     if (userId && req->method == HTTP_METHOD_GET)
     {
         SmartString *query = smart_string_new();

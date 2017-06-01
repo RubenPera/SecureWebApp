@@ -73,3 +73,39 @@ create procedure get_all_flights_with_id(in flightId int)
         where flight.id = flightId;
 	end //
 delimiter ;
+
+delimiter //
+create procedure get_all_flights_with_external_id(in externalId int)
+	begin
+		select flight.id, flight.date, flight.price, flight.flight_source, flight.flight_destination, flight.capacity, flight.external_id
+        from flight
+        where flight.external_id = externalId;
+	end //
+delimiter ;
+
+delimiter //
+create procedure create_booking_and_update_money(in userId int, in flightId int)
+	begin
+		update flight
+        set flight.capacity = flight.capacity - 1
+        where flight.id = flightId;
+		update user
+		set user.inholland_miles = user.inholland_miles- (
+			select flight.price
+            from flight
+			where flight.id = flightId)
+			where user.id = userId;
+		insert into booking(user_id, flight_id)
+        values (userid, flightId);
+	end //
+delimiter ;
+
+delimiter //
+create procedure cancel_booking(in flightId int)
+	begin
+		delete from booking
+        where booking.flight_id = flightId;
+        delete from flight
+        where flight.id = flightId;
+	end //
+delimiter ;

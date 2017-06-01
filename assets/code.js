@@ -134,14 +134,18 @@ var masterPage = new Vue({
         },
 
         book: function (flight) {
+            console.log("erro " + flight.external_id);
 
             //Need to also to add to wich user this flight will be added to
-            this.$http.post('/bookFlight', "id="+ flight.external_id).then(
+            this.$http.post('/bookFlightWithId', 'id=' + flight.external_id).then(
                 function () {
                     this.FlightOverView.showModal = false;
                     this.loadFlights();
                     this.loadLinks();
-                });
+                },
+            response => {
+                console.log("erro");
+            });
         },
         loadUser: function () {
             this.$http.get('/getUserInfo?id=1').then(response => {
