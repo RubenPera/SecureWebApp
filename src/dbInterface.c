@@ -512,17 +512,9 @@ void createSessionRow(int userId, char *sessionId) {
     }
 
     memset(bind, 0, sizeof(bind));
-
-    bind[0].buffer_type = MYSQL_TYPE_LONG;
-    bind[0].buffer = (char *) &userId;
-    bind[0].is_null = 0;
-    bind[0].length = 0;
-
-    bind[1].buffer_type = MYSQL_TYPE_STRING;
-    bind[1].buffer = (char *) session_id_param;
-    bind[1].buffer_length = STRING_SIZE;
-    bind[1].is_null = 0;
-    bind[1].length = &str_length;
+    unsigned  int i = 0;
+    fillInputBindLong(bind, i++, &userId);
+    fillInputBindString(bind, i++, &session_id_param, &str_length);
 
     strncpy(session_id_param, sessionId, STRING_SIZE); /* string  */
     str_length = strlen(session_id_param);
