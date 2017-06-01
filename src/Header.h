@@ -85,6 +85,7 @@ void fillInputBindString(MYSQL_BIND *bind, unsigned int i, char ** param, unsign
 void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param);
 DatabaseResult getFlightWithExternalId(int externalId);
 void cancelFlight(int flightId);
+DatabaseResult getAllBookedFlights(int userId);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);
