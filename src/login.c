@@ -63,7 +63,7 @@ login_validate_password(char *input_password, char *hash, char *salt) //compares
     uint64_t start = time_now();        //get the starttime of the function in microseconds
     char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
 
-    login_hash_password(input_password, salt, STRING_SIZE/2, STRING_SIZE/2,
+    login_hash_password(input_password, salt, LOGIN_HASH_ITERATIONS, STRING_SIZE/2,
                         hashed_input); //hash the password input by the user with the salt in the database
 
     int correct = 0;
