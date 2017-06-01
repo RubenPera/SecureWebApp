@@ -19,7 +19,7 @@ var masterPage = new Vue({
         },
         FlightOverView: {
         FlightItem: {
-            id: 0,
+            external_id: 0,
             date: '',
             price: '',
             flight_source: '',
@@ -136,7 +136,7 @@ var masterPage = new Vue({
         book: function (flight) {
 
             //Need to also to add to wich user this flight will be added to
-            this.$http.post('/bookFlight', "id="+ flight.id).then(
+            this.$http.post('/bookFlight', "id="+ flight.external_id).then(
                 function () {
                     this.FlightOverView.showModal = false;
                     this.loadFlights();

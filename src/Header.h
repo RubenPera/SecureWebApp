@@ -73,6 +73,16 @@ void getUserAirmiles(SmartString *output, int userId);
 DatabaseResult getUserWithId(int userId);
 DatabaseResult getAllUsers();
 void setUserNewAirMiles(int userId, int airMiles);
+DatabaseResult getAllFlights();
+DatabaseResult getFlightWithId(int flightId);
+void fillOutputBindLong(MYSQL_BIND *bind, unsigned int i, int *param, my_bool *is_null, unsigned long *length,
+                        my_bool *error);
+void fillOutputBindString(MYSQL_BIND *bind, unsigned int i, char **param, my_bool *is_null, unsigned long *length,
+                          my_bool *error);
+void fillOutputBindDate(MYSQL_BIND *bind, unsigned int i, MYSQL_TIME *param, my_bool *is_null, unsigned long *length,
+                        my_bool *error) ;
+void fillInputBindString(MYSQL_BIND * bind, unsigned int i, char ** param, unsigned long * length);
+void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);

@@ -50,3 +50,26 @@ create procedure set_airMiles_for_userId(in userId int, in airMiles int)
 		where user.id = userId;
 	end //
 delimiter ;
+
+
+alter table flight
+add column external_id int not null unique;
+
+drop procedure get_all_flights;
+
+delimiter //
+create procedure get_all_flights()
+	begin
+		select *
+        from flight;
+	end //
+delimiter ;
+
+delimiter //
+create procedure get_all_flights_with_id(in flightId int)
+	begin
+		select flight.id, flight.date, flight.price, flight.flight_source, flight.flight_destination, flight.capacity, flight.external_id
+        from flight
+        where flight.id = flightId;
+	end //
+delimiter ;

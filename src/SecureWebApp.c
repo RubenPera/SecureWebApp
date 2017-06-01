@@ -96,18 +96,58 @@ int flightOverView(struct http_request *req) {
 }
 
 int getFlights(struct http_request *req) {
-    char *query = "call get_all_flights()";
-    char *groupName = "Flights";
-    SmartString *str = smart_string_new();
-    sqlToJson(str, query, groupName);
+    int userId = getLoggedInUser(req);
+    if (userId) {
 
-    /*Send data to page - response */
-    http_response_header(req, "content-type", "application/json");
-    http_response(req, 200, str->buffer, (unsigned) strlen(str->buffer));
+        DatabaseResult newDbResult = getAllFlights();
+        SmartString *str = smart_string_new();
+        /*Creating a json object*/
+        json_object *container = json_object_new_object();
+        /*Creating a json array*/
+        json_object *flights = json_object_new_array();
+        for (unsigned int row = 0; row < newDbResult.rows; row++) {
 
-    /*Clean up smartstring - free up memory*/
-    smart_string_destroy(str);
+            json_object *dateValue = json_object_new_string(get_DatabaseResult(newDbResult, row, db_flight_date));
 
+            json_object *priceValue = json_object_new_int((int) get_DatabaseResult(newDbResult, row, db_flight_price));
+            json_object *capacityValue = json_object_new_int(
+                    (int) get_DatabaseResult(newDbResult, row, db_flight_capacity));
+
+            json_object *externalIdValue = json_object_new_int(
+                    (int) get_DatabaseResult(newDbResult, row, db_flight_external_id));
+
+            json_object *sourceValue = json_object_new_string(
+                    get_DatabaseResult(newDbResult, row, db_flight_flight_source));
+            json_object *destinationValue = json_object_new_string(
+                    get_DatabaseResult(newDbResult, row, db_flight_flight_destination));
+
+
+            json_object *flight = json_object_new_object();
+
+            json_object_object_add(flight, "date", dateValue);
+            json_object_object_add(flight, "price", priceValue);
+            json_object_object_add(flight, "capacity", capacityValue);
+
+            json_object_object_add(flight, "flight_destination", destinationValue);
+            json_object_object_add(flight, "flight_source", sourceValue);
+            json_object_object_add(flight, "external_id", externalIdValue);
+
+            json_object_array_add(flights, flight);
+        }
+
+        json_object_object_add(container, "Flights", flights);
+
+        smart_string_append(str, json_object_to_json_string(container));
+
+        http_response_header(req, "content-type", "application/json");
+
+        http_response(req, 200, str->buffer, (
+                unsigned) strlen(str->buffer));
+
+        smart_string_destroy(str);
+        return (KORE_RESULT_OK);
+    }
+    http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
     return (KORE_RESULT_OK);
 }
 
@@ -179,18 +219,6 @@ void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], in
     }
 
     json_object_object_add(container, "Links", jsonLinks);
-
-}
-
-int getLoggedInUserName(struct http_request *req) {
-    int userId = getLoggedInUser(req);
-    if (userId) {
-
-    } else {
-        http_response(req, 200, NULL, NULL);
-        return (KORE_RESULT_OK);
-    }
-
 }
 
 int bookFlight(struct http_request *req) {
