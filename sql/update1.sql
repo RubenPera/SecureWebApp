@@ -109,3 +109,6 @@ create procedure cancel_booking(in flightId int)
         where flight.id = flightId;
 	end //
 delimiter ;
+
+insert into flight(date, price, flight_source, flight_destination, capacity, external_id)
+values(now(), 200, 'abc', 'cba', 200, (FLOOR( 1 + RAND( ) *6000 )));

@@ -134,18 +134,30 @@ var masterPage = new Vue({
         },
 
         book: function (flight) {
-            console.log("erro " + flight.external_id);
 
             //Need to also to add to wich user this flight will be added to
-            this.$http.post('/bookFlightWithId', 'id=' + flight.external_id).then(
-                function () {
+            this.$http.post('/bookFlightWithId', 'id=' + flight.external_id).then(response => {
                     this.FlightOverView.showModal = false;
                     this.loadFlights();
                     this.loadLinks();
                 },
             response => {
-                console.log("erro");
+                alert('Something went wrong, try again later');
             });
+        },
+        adminCancelFlight : function (flight) {
+            if (confirm('Are you sure want to cancel the flight with id: "' + flight.external_id + '"? \n Press OK to cancel the selected flight') == true) {
+
+
+            this.$http.post('/adminCancelFlightWithId', 'id=' + flight.external_id).then(response => {
+                this.loadFlights();
+            this.loadLinks();
+        },
+            response =>
+            {
+                alert('Something went wrong, please try again later');
+            });
+        }
         },
         loadUser: function () {
             this.$http.get('/getUserInfo?id=1').then(response => {
@@ -164,20 +176,20 @@ var masterPage = new Vue({
             },
             response =>
             {
-                // error callback
             });
         },
-        sendNewMiles: function(user){
-            console.log(user.newMiles);
-            console.log(user.email);
-            this.$http.post('/adminSetNewAirMilesValue', 'email=' + user.email + '&airmiles=' + user.newMiles).then(response =>{
-                console.log("yeah");
+        sendNewMiles: function(user) {
+            if (confirm('Are you sure want to change the airMiles of "' + user.email + '" to "' + user.newMiles +'" ?\n Press OK to change this user his airMiles') == true) {
+
+                this.$http.post('/adminSetNewAirMilesValue', 'email=' + user.email + '&airmiles=' + user.newMiles).then(response => {
+                    console.log("yeah");
                 this.adminLoadUsers();
-        },
-            response =>
-            {
-                // error callback
-            });
+            },
+                response =>
+                {
+                    alert('Something went wrong, please try again later');
+                });
+            }
         }
     },
 });

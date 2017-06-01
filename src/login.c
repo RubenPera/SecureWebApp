@@ -62,11 +62,13 @@ login_validate_password(char *input_password, char *hash, char *salt) //compares
     strcpy(backup, hash);
     uint64_t start = time_now();        //get the starttime of the function in microseconds
     char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
-
+    kore_log(2, "salt = %s", salt);
     login_hash_password(input_password, salt, LOGIN_HASH_ITERATIONS, STRING_SIZE/2,
                         hashed_input); //hash the password input by the user with the salt in the database
 
     int correct = 0;
+
+    kore_log(2, "hashed input = %s", hashed_input);
     correct = strcmp(backup,
                      hashed_input); //check if the hashed password in the database and the hashed user input are equal
     while (time_now() < start + 1000);    //wait until the starttime + 1 second has passed

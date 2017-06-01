@@ -47,6 +47,7 @@ int bookFlight(struct http_request *);
 int flightOverView(struct http_request *);
 int showLoginPage(struct http_request *req);
 void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], int sizeLinks, char *links[sizeLinks]);
+bool isAdmin(struct http_request *req);
 
 
 // Cookie.c
