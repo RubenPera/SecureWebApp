@@ -277,12 +277,14 @@ void sqlToJson(SmartString *str, char *query, char *groupname) {
     mysql_query(conn, query);
 
     MYSQL_RES *result = mysql_store_result(conn);
-    if (result != NULL) {
+    if (result != NULL)
+    {
 
         int num_fields = mysql_num_fields(result);
         char **field_array;
-        field_array = (char **) malloc(sizeof(char *) * (num_fields + 1));
-        for (int i = 0; i < num_fields; i++) {
+        field_array = (char **)malloc(sizeof(char *) * (num_fields + 1));
+        for (int i = 0; i < num_fields; i++)
+        {
             field = mysql_fetch_field(result);
             field_array[i] = field->name;
         }
@@ -290,10 +292,12 @@ void sqlToJson(SmartString *str, char *query, char *groupname) {
         /*Creating a json array*/
         json_object *items = json_object_new_array();
 
-        while ((row = mysql_fetch_row(result))) {
+        while ((row = mysql_fetch_row(result)))
+        {
             //Reading a row.
             json_object *item = json_object_new_object();
-            for (col_counter = 0; col_counter < num_fields; col_counter++) {
+            for (col_counter = 0; col_counter < num_fields; col_counter++)
+            {
                 //Retrieving a col.
                 char *col_value = row[col_counter];
                 //Retrieving the name of the field belonging to this row.
@@ -315,11 +319,13 @@ void sqlToJson(SmartString *str, char *query, char *groupname) {
     smart_string_append(str, json_object_to_json_string(container));
 }
 
-void DoHet(SmartString *str) {
+void DoHet(SmartString *str)
+{
     smart_string_append(str, "hallo");
 }
 
-void createBooking(int userId, int flightId) {
+void createBooking(int userId, int flightId)
+{
     MYSQL *conn;
     MYSQL_RES *result;
     MYSQL_ROW userRow;
@@ -342,7 +348,8 @@ void createBooking(int userId, int flightId) {
 
     mysql_query(conn, getUserAirmilesQuery->buffer);
     result = mysql_store_result(conn);
-    if (result != NULL) {
+    if (result != NULL)
+    {
         kore_log(2, getUserAirmilesQuery->buffer);
         userRow = mysql_fetch_row(result);
         userAirmiles = atoi(userRow[0]);
@@ -350,49 +357,66 @@ void createBooking(int userId, int flightId) {
         mysql_free_result(result);
         result = NULL;
         mysql_next_result(conn);
-    } else {
+    }
+    else
+    {
         kore_log(2, "Error: ResultNullexception");
     }
 
     mysql_query(conn, getFlightPriceQuery->buffer);
     result = mysql_store_result(conn);
 
-    if (result != NULL) {
+    if (result != NULL)
+    {
         kore_log(2, getFlightPriceQuery->buffer);
         flightRow = mysql_fetch_row(result);
         flightPrice = atoi(flightRow[0]);
         kore_log(2, flightRow[0]);
         result = NULL;
         mysql_next_result(conn);
-    } else {
+    }
+    else
+    {
         kore_log(2, "Error: ResultNullexception");
     }
 
-    if (userAirmiles >= flightPrice) {
+    if (userAirmiles >= flightPrice)
+    {
         /*Create a query for decreasing capacity of flight by 1 */
         createUpdateFlightCapacityQuery(updateFlight, flightId);
         kore_log(2, updateFlight->buffer);
-        if (mysql_query(conn, updateFlight->buffer) != 0) {
+        if (mysql_query(conn, updateFlight->buffer) != 0)
+        {
             kore_log(2, "UPDATE Flight failed: Stopping booking..");
-        } else {
+        }
+        else
+        {
 
             /*Create a qeury for inserting a booking into the booking table */
             createInsertBookingQuery(updateBooking, userId, flightId);
             kore_log(2, updateBooking->buffer);
-            if (mysql_query(conn, updateBooking->buffer) != 0) {
+            if (mysql_query(conn, updateBooking->buffer) != 0)
+            {
                 kore_log(2, "INSERT INTO Booking failed: Stopping booking..");
-            } else {
+            }
+            else
+            {
 
                 createUpdateUserAirMilesQuery(updateUserAirmilesQuery, userId, flightPrice);
                 kore_log(2, updateUserAirmilesQuery->buffer);
-                if (mysql_query(conn, updateUserAirmilesQuery->buffer) != 0) {
+                if (mysql_query(conn, updateUserAirmilesQuery->buffer) != 0)
+                {
                     kore_log(2, "UPDATE User failed: Stopping booking..");
-                } else {
+                }
+                else
+                {
                     kore_log(2, "Booking transaction succeeded.");
                 }
             }
         }
-    } else {
+    }
+    else
+    {
         kore_log(2, "not enought moneys");
     }
 
@@ -682,7 +706,6 @@ DatabaseResult getUserWithId(int userId) {
     set_DatabaseResult(dbResult, 0, i++, (char *) role_param);
 
     return dbResult;
-
 }
 
 DatabaseResult getFlightWithId(int flightId) {

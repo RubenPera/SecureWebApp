@@ -197,3 +197,12 @@ create procedure update_session_last_use(in session_id_var varchar(256))
 		where session_id = session_id_var;
 	end //
 delimiter ;
+
+delimiter //
+create procedure get_flight_by_id(in flightId int)
+	begin
+		select *
+        from flight
+        where id = flightId;
+	end //
+delimiter ;

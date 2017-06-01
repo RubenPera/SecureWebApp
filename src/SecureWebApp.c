@@ -1,7 +1,6 @@
 
 #include "Header.h"
 
-
 // Returns userId if a user is logged in
 // Returns false if a user is not logged in
 int getLoggedInUser(struct http_request *req) {
@@ -165,7 +164,7 @@ int getLinks(struct http_request *req) {
         /*Creating a json array*/
 
         char *email = get_DatabaseResult(dbResult, 0, db_user_email);
-        int miles = (int) get_DatabaseResult(dbResult, 0, db_user_inholland_miles);
+        int miles = (int)get_DatabaseResult(dbResult, 0, db_user_inholland_miles);
 
         char strMiles[sizeof(miles)];
         sprintf(strMiles, "%d", miles);
@@ -264,7 +263,6 @@ int showLoginPage(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
-
 int userInfo(struct http_request *req)
 {
 
@@ -319,8 +317,8 @@ int getUserInfo(struct http_request *req)
     }
     else
     {
-        http_response(req, 401,"Unauthorized", (unsigned)strlen("Unauthorized"));
-        kore_log(2,"Unauthorized User Access");
+        http_response(req, 401, "Unauthorized", (unsigned)strlen("Unauthorized"));
+        kore_log(2, "Unauthorized User Access");
         return login(req);
 
     }
@@ -359,8 +357,8 @@ int getFlightsBooked(struct http_request *req)
     }
     else
     {
-        http_response(req, 401,"Unauthorized", (unsigned)strlen("Unauthorized"));
-        kore_log(2,"Unauthorized User Access");
+        http_response(req, 401, "Unauthorized", (unsigned)strlen("Unauthorized"));
+        kore_log(2, "Unauthorized User Access");
         return login(req);
     }
 
