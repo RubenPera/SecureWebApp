@@ -31,4 +31,22 @@ create procedure get_user_with_id(in userId int)
 delimiter ;
 
 
+delimiter //
+create procedure delete_flight(in flightId int)
+	begin
+		delete from booking
+		where booking.flight_id = flightId;
+		delete from flight
+		where flight.id = flightId;
+	end //
+delimiter ;
 
+
+delimiter //
+create procedure set_airMiles_for_userId(in userId int, in airMiles int)
+	begin
+		update user
+		set user.inholland_miles = airMiles
+		where user.id = userId;
+	end //
+delimiter ;

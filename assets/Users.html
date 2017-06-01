@@ -1,0 +1,26 @@
+
+
+<div class="row">
+    <div class="col-sm-8">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Email</th>
+                <th>Air Miles</th>
+                <th>Role</th>
+                <th>New Air miles</th>
+                <th>Submit Button</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="user in Admin.Users">
+                <td>{{user.email}}</td>
+                <td>{{user.miles}}</td>
+                <td>{{user.role}}</td>
+                <td><input type="number" v-model="user.newMiles"/> </td>
+                <td><button v-on:click="sendNewMiles(user)">Send</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
