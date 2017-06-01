@@ -12,7 +12,7 @@ var masterPage = new Vue({
         Links: [],
         message: 'Hello Vue!',
         login: {
-            email: "user2@teamalfa.nl",
+            email: "user2@teamalfa.com",
             password: "",
             error: "",
             emailError: "",
@@ -42,6 +42,9 @@ var masterPage = new Vue({
             query: '',
             query2: '',
         },
+        Admin: {
+            Users :[],
+        }
 
 
     },
@@ -56,6 +59,7 @@ var masterPage = new Vue({
         this.validateEmail();
         this.loadFlights();
         this.loadUser();
+        this.adminLoadUsers();
     },
     methods: {
         loadLinks: function () {
@@ -87,7 +91,7 @@ var masterPage = new Vue({
         },
 
         loginUser: function () {
-            if (this.login.email && this.login.password) {
+            if (this.login.email && this.login.password && this.isValidLoginEmail()) {
                 this.$http.post('/login', 'email=' + this.login.email + '&password=' + this.login.password).then(response => {
                     console.log(response.status);
                 if (response.ok) {
@@ -144,12 +148,32 @@ var masterPage = new Vue({
 
                 // get body data
                 this.UserInfo.UserInfo = response.body.Users[0];
-
         },
             response =>
             {
                 // error callback
             });
         },
+        adminLoadUsers: function(){
+            this.$http.get('/adminGetUsers').then(response =>{
+                this.Admin.Users = response.body.Users;
+            },
+            response =>
+            {
+                // error callback
+            });
+        },
+        sendNewMiles: function(user){
+            console.log(user.newMiles);
+            console.log(user.email);
+            this.$http.post('/adminSetNewAirMilesValue', 'email=' + user.email + '&airmiles=' + user.newMiles).then(response =>{
+                console.log("yeah");
+                this.adminLoadUsers();
+        },
+            response =>
+            {
+                // error callback
+            });
+        }
     },
 });

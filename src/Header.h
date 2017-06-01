@@ -29,6 +29,7 @@
 #include "login.h"
 #define null NULL
 #define STRING_SIZE 256
+#define adminRole 1
 
 // DatabaseResult.c
 typedef struct
@@ -62,7 +63,6 @@ struct kore_buf *getSessionCookieValue(struct http_request *req);
 
 // DBInterface.c
 void _dbConnect(MYSQL *conn);
-DatabaseResult getUsers();
 void _dbDisconnect(MYSQL *conn);
 void update_session(char * session_id);
 DatabaseResult getIdSaltHashWithEmail(char *email);
@@ -71,7 +71,8 @@ void DoHet(SmartString *str);
 void createBooking(int userId, int flightId);
 void getUserAirmiles(SmartString *output, int userId);
 DatabaseResult getUserWithId(int userId);
-
+DatabaseResult getAllUsers();
+void setUserNewAirMiles(int userId, int airMiles);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);
