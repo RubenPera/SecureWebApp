@@ -747,52 +747,12 @@ DatabaseResult getFlightWithId(int flightId) {
 
     i = 0;
     fillOutputBindLong(outputBind, i++, &flightId_param, is_null, length, error);
-
-
-    outputBind[i].buffer_type = MYSQL_TYPE_DATETIME;
-    outputBind[i].buffer = (char *) &date;
-    outputBind[i].buffer_length = STRING_SIZE;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    outputBind[i].buffer = (char *) &price_param;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_STRING;
-    outputBind[i].buffer = (char *) &flight_source;
-    outputBind[i].buffer_length = STRING_SIZE;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_STRING;
-    outputBind[i].buffer = (char *) &flight_destination;
-    outputBind[i].buffer_length = STRING_SIZE;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    outputBind[i].buffer = (char *) &capacity_param;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    outputBind[i].buffer = (char *) &external_id_param;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
+    fillOutputBindDate(outputBind, i++, &date, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &price_param, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &flight_source, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &flight_destination, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &capacity_param, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &external_id_param, is_null, length, error);
 
     /* Bind the result buffers */
     if (mysql_stmt_bind_result(stmt, outputBind)) {
@@ -806,7 +766,7 @@ DatabaseResult getFlightWithId(int flightId) {
 
     _dbDisconnect(conn);
     DatabaseResult dbResult;
-    dbResult = init_DatabaseResult(mysql_stmt_num_rows(stmt), i + 1);
+    dbResult = init_DatabaseResult(mysql_stmt_num_rows(stmt), i);
     unsigned int y = 0;
     while (!mysql_stmt_fetch(stmt)) {
         set_DatabaseResult(dbResult, y, db_flight_id, (char *) flightId_param);
@@ -836,7 +796,6 @@ DatabaseResult getFlightWithId(int flightId) {
     }
 
     return dbResult;
-
 }
 
 DatabaseResult getAllUsers() {
@@ -849,8 +808,6 @@ DatabaseResult getAllUsers() {
     // MySQL bool to make pointers fully compatible
     my_bool is_null[6];
     my_bool error[6];
-
-    unsigned long str_length = STRING_SIZE;
 
     char email_param[STRING_SIZE + 1];
     email_param[STRING_SIZE] = NULL;
@@ -890,49 +847,12 @@ DatabaseResult getAllUsers() {
     memset(outputBind, 0, sizeof(outputBind));
 
     unsigned int i = 0;
-    outputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    outputBind[i].buffer = (char *) &id_param;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_STRING;
-    outputBind[i].buffer = (char *) salt_param;
-    outputBind[i].buffer_length = STRING_SIZE;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_STRING;
-    outputBind[i].buffer = (char *) hash_param;
-    outputBind[i].buffer_length = STRING_SIZE;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_STRING;
-    outputBind[i].buffer = (char *) email_param;
-    outputBind[i].buffer_length = STRING_SIZE;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    outputBind[i].buffer = (char *) &miles_param;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
-
-    i++;
-    outputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    outputBind[i].buffer = (char *) &role_param;
-    outputBind[i].is_null = &is_null[i];
-    outputBind[i].length = &length[i];
-    outputBind[i].error = &error[i];
+    fillOutputBindLong(outputBind, i++, &id_param, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &salt_param, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &hash_param, is_null, length, error);
+    fillOutputBindString(outputBind, i++, &email_param, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &miles_param, is_null, length, error);
+    fillOutputBindLong(outputBind, i++, &role_param, is_null, length, error);
 
     /* Bind the result buffers */
     if (mysql_stmt_bind_result(stmt, outputBind)) {
@@ -946,7 +866,7 @@ DatabaseResult getAllUsers() {
 
     _dbDisconnect(conn);
     DatabaseResult dbResult;
-    dbResult = init_DatabaseResult(mysql_stmt_num_rows(stmt), i + 1);
+    dbResult = init_DatabaseResult(mysql_stmt_num_rows(stmt), i);
     unsigned int y = 0;
     while (!mysql_stmt_fetch(stmt)) {
 
@@ -995,17 +915,9 @@ void setUserNewAirMiles(int userId, int airMiles){
 
     memset(inputBind, 0, sizeof(inputBind));
 
-    inputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    inputBind[i].buffer = (char *) &userId;
-    inputBind[i].is_null = 0;
-    inputBind[i].length = 0;
-
-    i++;
-    inputBind[i].buffer_type = MYSQL_TYPE_LONG;
-    inputBind[i].buffer = (char *) &airMiles;
-    inputBind[i].is_null = 0;
-    inputBind[i].length = 0;
-
+    i = 0;
+    fillInputBindLong(inputBind, i++, &userId);
+    fillInputBindLong(inputBind, i++, &airMiles);
 
     if (mysql_stmt_bind_param(stmt, inputBind)) {
         kore_log(2, "ERROR");
