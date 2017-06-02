@@ -16,7 +16,7 @@
                 <td>{{user.miles}}</td>
                 <td>{{user.role}}</td>
                 <td><input type="number" v-model="user.newMiles"/> </td>
-                <td><button v-on:click="sendNewMiles(user)">Send</button></td>
+                <td><button class="btn btn-primary" v-on:click="sendNewMiles(user)">Send</button></td>
             </tr>
             </tbody>
         </table>

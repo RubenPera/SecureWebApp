@@ -68,7 +68,7 @@ bool login_validate_password(const char *input_password, const char *hash, const
     char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
     hashed_input[STRING_SIZE] = null;
 
-    kore_log(2, "pass = %s , salt = %s",input_password, salt);
+    kore_log(2, "pass = %s , salt = %s",input_password, buffer->data);
 
     login_hash_password(input_password, buffer->data, LOGIN_HASH_ITERATIONS, STRING_SIZE/2,
                         hashed_input); //hash the password input by the user with the salt in the database

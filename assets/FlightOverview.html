@@ -21,8 +21,8 @@
         </div>
 
         <div slot="footer">
-          <button class="modal-default-button" @click="FlightOverView.showModal = false"> Cancel </button>
-          <button class="modal-default-button" @click="book(FlightOverView.FlightItem)"> Book </button>
+          <button class="btn btn-primary" @click="FlightOverView.showModal = false"> Cancel </button>
+          <button class="btn btn-primary" @click="book(FlightOverView.FlightItem)"> Book </button>
         </div>
 
       </modal>
@@ -49,7 +49,7 @@
                 <td>{{flight.date}}</td>
                 <td>{{flight.capacity}}</td>
                 <td>{{flight.price}}</td>
-                <td><button id="show-modal" @click="loadFlight(flight)">Book</button></td>
+                <td><button class="btn btn-primary" id="show-modal" @click="loadFlight(flight)">Book</button></td>
               </tr>
             </tbody>
           </table>

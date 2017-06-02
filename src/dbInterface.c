@@ -164,9 +164,15 @@ DatabaseResult getIdSaltHashWithEmail(char *email)
     DatabaseResult dbResult;
     dbResult = init_DatabaseResult(1, i);
     i = 0;
+
+
     set_DatabaseResult(dbResult, 0, i++, (char *)userId);
-    set_DatabaseResult(dbResult, 0, i++, salt_param);
-    set_DatabaseResult(dbResult, 0, i++, hash_param);
+    SmartString * strSalt_param = smart_string_new();
+    smart_string_append(strSalt_param, salt_param);
+    set_DatabaseResult(dbResult, 0, i++, strSalt_param->buffer);
+    SmartString * strHash_param = smart_string_new();
+    smart_string_append(strHash_param, hash_param);
+    set_DatabaseResult(dbResult, 0, i++, strHash_param->buffer);
 
     return dbResult;
 }
@@ -1190,16 +1196,24 @@ void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param)
     bind[i].length = 0;
 }
 
-void updateUserPassword(int userId, char *hashed_input)
+void updateUserPassword(int userId, char *hash, char * salt)
 {
     kore_log(1, "updatePassword");
     MYSQL *conn;
     MYSQL_STMT *statement;
-    MYSQL_BIND input_bind[2];
+    MYSQL_BIND input_bind[3];
+    char hash_param[STRING_SIZE + 1];
+    hash_param[STRING_SIZE] = NULL;
+    char salt_param[STRING_SIZE + 1];
+    salt_param[STRING_SIZE] = NULL;
     unsigned int i = 0;
+    unsigned long str_length = STRING_SIZE;
+
+
     conn = mysql_init(NULL);
+
     _dbConnect(conn);
-    char *query = "call update_password_for_userId(?,?)";
+    char *query = "call update_password_for_userId(?,?,?)";
 
     statement = mysql_stmt_init(conn);
     if (!statement)
@@ -1214,9 +1228,13 @@ void updateUserPassword(int userId, char *hashed_input)
 
     memset(input_bind, 0, sizeof(input_bind));
 
+    strncpy(hash_param, hash, STRING_SIZE); /* string  */
+    strncpy(salt_param, salt, STRING_SIZE); /* string  */
+
     i = 0;
     fillInputBindLong(input_bind, i++, &userId);
-    fillInputBindLong(input_bind, i++, &hashed_input);
+    fillInputBindString(input_bind, i++, &hash_param, &str_length);
+    fillInputBindString(input_bind, i++, &salt_param, &str_length);
 
     if (mysql_stmt_bind_param(statement, input_bind))
     {

@@ -5,8 +5,7 @@
 
 </div>
 
-<div class="content">
-    <div id="userinfoapp" class="container">
+<div id="userinfoapp">
 
 
         <modal v-if="UserInfo.showModal" @close="UserInfo.showModal = false">
@@ -21,7 +20,7 @@
                     <li>More than 12 characters</li>
                     <li>Contain a upper and lowercase character</li>
                     <li>Contain a number</li>
-                    <li>Contain 2 of the following special characters: "!#$%&? "</li>
+                    <li>Contain one of the following special characters: "!#$%&? "</li>
 
                 </ul>
             </div>
@@ -30,8 +29,8 @@
                 <div id="error">
                     <div class="alert alert-danger" v-if="UserInfo.ChangePass.error !== ''" role="alert">{{ UserInfo.ChangePass.error }}</div>
                 </div>
-                <button class="modal-default-button" @click="UserInfo.showModal = false"> Cancel </button>
-                <button class="modal-default-button" @click="changePassword()"> Submit </button>
+                <button class="btn btn-primary" @click="UserInfo.showModal = false"> Cancel </button>
+                <button class="btn btn-primary" @click="changePassword()"> Submit </button>
             </div>
 
         </modal>
@@ -41,8 +40,8 @@
         <div class="row">
             <div class="col-sm-8">
                 <div class="settings">
-                    <button class="btn btn-default" id="show-modal" @click="UserInfo.showModal=true">
-                        <span class="glyphicon glyphicon-cog"></span> Settings
+                    <button class="btn btn-primary" id="show-modal" @click="UserInfo.showModal=true">
+                        <span class="glyphicon glyphicon-cog"></span> Change Password
                     </button>
                 </div>
                 <h2> User Information </h2>
@@ -94,36 +93,3 @@
 
         </div>
     </div>
-</div>
-
-
-<!--&lt;!&ndash; template for the modal component &ndash;&gt;-->
-<!--<script type="text/x-template" id="userinfo-modal-template">-->
-    <!--<transition name="modal2">-->
-        <!--<div class="modal-mask">-->
-            <!--<div class="modal-wrapper">-->
-                <!--<div class="modal-container">-->
-
-                    <!--<div class="modal-header">-->
-                        <!--<slot name="header">-->
-                            <!--default header-->
-                        <!--</slot>-->
-                    <!--</div>-->
-
-                    <!--<div class="modal-body">-->
-                        <!--<slot name="body">-->
-                            <!--defualt body-->
-                        <!--</slot>-->
-                    <!--</div>-->
-
-                    <!--<div class="modal-footer">-->
-                        <!--<slot name="footer">-->
-                            <!--defualt footer-->
-                            <!--<button class="modal-default-button" @click="$emit('close')"> Cancel </button>-->
-                        <!--</slot>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</transition>-->
-<!--</script>-->

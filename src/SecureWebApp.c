@@ -28,7 +28,7 @@ int page(struct http_request *req) {
 
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
         kore_buf_replace_string(buffer, "$body$", asset_Index_html, asset_len_Index_html);
-        http_response(req, 200, buffer->data, buffer->offset);
+        http_response(req, HTTP_STATUS_OK, buffer->data, buffer->offset);
         kore_buf_free(cookieValue);
         return (KORE_RESULT_OK);
     } else {
@@ -38,7 +38,6 @@ int page(struct http_request *req) {
 
 // Returns the Login page
 int login(struct http_request *req) {
-    struct kore_buf *buffer;
     char *login_email_param = NULL;
     char *login_password_param = NULL;
 
@@ -51,11 +50,9 @@ int login(struct http_request *req) {
         if (KORE_RESULT_OK == http_argument_get_string(req, "email", &login_email_param) &&
             KORE_RESULT_OK == http_argument_get_string(req, "password", &login_password_param)) {
             DatabaseResult dbResult;
+            dbResult = getIdSaltHashWithEmail(login_email_param);
 
             if (&dbResult != null) {
-
-                dbResult = getIdSaltHashWithEmail(login_email_param);
-
                 bool isAuthenticated = login_validate_password(login_password_param,
                                                                get_DatabaseResult(dbResult, 0, 2),
                                                                (unsigned char *) get_DatabaseResult(dbResult, 0, 1));
@@ -67,7 +64,7 @@ int login(struct http_request *req) {
                 http_populate_cookies(req);
                 createSessionCookie(req, (int) get_DatabaseResult(dbResult, 0, db_user_id));
 
-                http_response(req, 200, NULL, NULL);
+                http_response(req, HTTP_STATUS_OK, NULL, NULL);
                 return (KORE_RESULT_OK);
             }
         } else {
@@ -86,7 +83,7 @@ int flightOverView(struct http_request *req) {
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
         kore_buf_replace_string(buffer, "$body$", asset_FlightOverview_html, asset_len_FlightOverview_html);
-        http_response(req, 200, buffer->data, buffer->offset);
+        http_response(req, HTTP_STATUS_OK, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
     } else {
         return login(req);
@@ -139,7 +136,7 @@ int getFlights(struct http_request *req) {
 
             http_response_header(req, "content-type", "application/json");
 
-            http_response(req, 200, str->buffer, (
+            http_response(req, HTTP_STATUS_OK, str->buffer, (
                     unsigned) strlen(str->buffer));
 
             smart_string_destroy(str);
@@ -154,7 +151,8 @@ int getLinks(struct http_request *req) {
     int userId = getLoggedInUser(req);
     if (userId) {
         DatabaseResult dbResult = getUserWithId(userId);
-        if (&dbResult != null && get_DatabaseResult(dbResult, 0, db_user_role) != null) {
+
+        if (&dbResult != null) {
             int role = (int) get_DatabaseResult(dbResult, 0, db_user_role);
 
             SmartString *str = smart_string_new();
@@ -181,15 +179,16 @@ int getLinks(struct http_request *req) {
                 fillLinks(container, (sizeof(texts) / sizeof(char *)), texts, (sizeof(links) / sizeof(char *)), links);
             } else {
                 // normal user
-                char *texts[] = {"Flights", "Logout", (char *) userInfo->buffer};
+                char *texts[] = {"Flights", "Logout", userInfo->buffer};
                 char *links[] = {"flightOverView", "logout", "userInfo"};
                 fillLinks(container, (sizeof(texts) / sizeof(char *)), texts, (sizeof(links) / sizeof(char *)), links);
             }
+            kore_log(2, "return value = %s", json_object_to_json_string(container));
             smart_string_append(str, json_object_to_json_string(container));
 
             http_response_header(req, "content-type", "application/json");
 
-            http_response(req, 200, str->buffer, (
+            http_response(req, HTTP_STATUS_OK, str->buffer, (
                     unsigned) strlen(str->buffer));
 
             smart_string_destroy(str);
@@ -237,7 +236,7 @@ int bookFlightWithId(struct http_request *req) {
                     int userId_param = (int) get_DatabaseResult(user, 0, db_user_id),
                             flightId_param = (int) get_DatabaseResult(flight, 0, db_flight_id);
                     createBooking(userId_param, flightId_param);
-                    http_response(req, 200, NULL, NULL);
+                    http_response(req, HTTP_STATUS_OK, NULL, NULL);
                     return (KORE_RESULT_OK);
                 }
             }
@@ -281,6 +280,7 @@ int validate_password_regex(struct http_request *req, char *data) {
     char **aLineToMatch;
     char *testStrings[] = {data};
 
+    kore_log(2, "data = %s", data);
     aStrRegex = "^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!#$%&? \"])(?=.*[A-Z]).*$";
 
     // First, the regex string must be compiled.
@@ -291,9 +291,9 @@ int validate_password_regex(struct http_request *req, char *data) {
         return result;
     } /* end if */
 
+
     // Optimize the regex
     pcreExtra = pcre_study(reCompiled, 0, &pcreErrorStr);
-
 
     for (aLineToMatch = testStrings; *aLineToMatch != NULL; aLineToMatch++) {
         pcreExecRet = pcre_exec(reCompiled,
@@ -306,16 +306,23 @@ int validate_password_regex(struct http_request *req, char *data) {
                                 30);                    // Length of subStrVec
         if (pcreExecRet < 0) { // Something bad happened..
             result = (KORE_RESULT_ERROR);
+            break;
         } else {
             result = (KORE_RESULT_OK);
+            break;
 
         }  /* end if/else */
+        kore_log(2, "optimized");
     }
     kore_log(2, "password is valid %d", result);
     // Free up the regular expression.
     pcre_free(reCompiled);
     return result;
 
+}
+
+int validate_old_password_regex(struct http_request *req, char *data) {
+    return (KORE_RESULT_OK);
 }
 
 // Returns the Login page
@@ -334,7 +341,7 @@ int showLoginPage(struct http_request *req) {
 
     kore_buf_replace_string(buffer, "$body$", asset_Login_html, asset_len_Login_html);
 
-    http_response(req, 200, buffer->data, buffer->offset);
+    http_response(req, HTTP_STATUS_OK, buffer->data, buffer->offset);
     return (KORE_RESULT_OK);
 }
 
@@ -349,7 +356,7 @@ int userInfo(struct http_request *req)
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
         kore_buf_replace_string(buffer, "$body$", asset_UserInfo_html, asset_len_UserInfo_html);
-        http_response(req, 200, buffer->data, buffer->offset);
+        http_response(req, HTTP_STATUS_OK, buffer->data, buffer->offset);
 
         return (KORE_RESULT_OK);
     }
@@ -389,7 +396,7 @@ int getUserInfo(struct http_request *req)
 
         /*Send data to page - response */
         http_response_header(req, "content-type", "application/json");
-        http_response(req, 200, str->buffer, (unsigned)strlen(str->buffer));
+        http_response(req, HTTP_STATUS_OK, str->buffer, (unsigned) strlen(str->buffer));
 
         /*Clean up smartstring - free up memory*/
         smart_string_destroy(str);
@@ -438,7 +445,7 @@ int adminGetUsers(struct http_request *req) {
 
         http_response_header(req, "content-type", "application/json");
 
-        http_response(req, 200, str->buffer, (
+        http_response(req, HTTP_STATUS_OK, str->buffer, (
                 unsigned) strlen(str->buffer));
 
         smart_string_destroy(str);
@@ -454,7 +461,7 @@ int adminUsers(struct http_request *req) {
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
         kore_buf_replace_string(buffer, "$body$", asset_Users_html, asset_len_Users_html);
-        http_response(req, 200, buffer->data, buffer->offset);
+        http_response(req, HTTP_STATUS_OK, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
     }
     http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
@@ -490,7 +497,7 @@ int adminFlightOverView(struct http_request *req) {
         kore_buf_append(buffer, asset_MasterPage_html, asset_len_MasterPage_html);
 
         kore_buf_replace_string(buffer, "$body$", asset_AdminFlightOverview_html, asset_len_AdminFlightOverview_html);
-        http_response(req, 200, buffer->data, buffer->offset);
+        http_response(req, HTTP_STATUS_OK, buffer->data, buffer->offset);
         return (KORE_RESULT_OK);
     }
     http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
@@ -514,7 +521,7 @@ bool isAdmin(struct http_request *req) {
 int serve_css(struct http_request *req) {
 
     http_response_header(req, "content-type", "text/css");
-    http_response(req, 200, asset_style_css, asset_len_style_css);
+    http_response(req, HTTP_STATUS_OK, asset_style_css, asset_len_style_css);
 
     return (KORE_RESULT_OK);
 }
@@ -522,7 +529,7 @@ int serve_css(struct http_request *req) {
 int serve_js(struct http_request *req) {
 
     http_response_header(req, "content-type", "text/javascript");
-    http_response(req, 200, asset_code_js, asset_len_code_js);
+    http_response(req, HTTP_STATUS_OK, asset_code_js, asset_len_code_js);
 
     return (KORE_RESULT_OK);
 }
@@ -530,7 +537,7 @@ int serve_js(struct http_request *req) {
 int serve_favicon(struct http_request *req) {
     //image/png
     http_response_header(req, "content-type", "image/png");
-    http_response(req, 200, asset_favicon_ico, asset_len_favicon_ico);
+    http_response(req, HTTP_STATUS_OK, asset_favicon_ico, asset_len_favicon_ico);
 
     return (KORE_RESULT_OK);
 }
@@ -547,6 +554,7 @@ int changePassword(struct http_request *req) {
 
         if (KORE_RESULT_OK == http_argument_get_string(req, "oldpassword", &old_password) &&
             KORE_RESULT_OK == http_argument_get_string(req, "newpassword", &new_password)) {
+
             kore_log(2, "received password");
             DatabaseResult dbResult;
             dbResult = getIdSaltHashWithEmail(get_DatabaseResult(userdbResult, 0, db_user_email));
@@ -554,10 +562,13 @@ int changePassword(struct http_request *req) {
 
             bool isAuthenticated = login_validate_password(old_password, get_DatabaseResult(dbResult, 0, 2),
                                                            get_DatabaseResult(dbResult, 0, 1));
+            kore_log(2, "old = %s, new = %s", old_password, new_password);
             if (!isAuthenticated) {
+                kore_log(2, "not authenticated");
                 http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
                 return (KORE_RESULT_OK);
             } else {
+                kore_log(2, "is authenticated");
                 char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
                 hashed_input[STRING_SIZE] = null;
                 char salt[STRING_SIZE + 1];
@@ -568,10 +579,9 @@ int changePassword(struct http_request *req) {
                 login_hash_password(new_password, salt, LOGIN_HASH_ITERATIONS,
                                     STRING_SIZE / 2,
                                     hashed_input); //hash the password input by the user with the salt in the database
-                kore_log(2, "new hash = %s   new salt = %s", hashed_input, salt);
+                updateUserPassword(userId, hashed_input, salt);
 
-//                updateUserPassword(userId, hashed_input);
-                http_response(req, 200, null, 0);
+                http_response(req, HTTP_STATUS_OK, null, 0);
                 return (KORE_RESULT_OK);
             }
         }
@@ -580,6 +590,9 @@ int changePassword(struct http_request *req) {
         kore_log(2, "Unauthorized User Access");
         return (KORE_RESULT_OK);
     }
+    http_response(req, 401, "Unauthorized", (unsigned) strlen("Unauthorized"));
+    kore_log(2, "Unauthorized User Access");
+    return (KORE_RESULT_OK);
 }
 
 int getFlightsBooked(struct http_request *req) {
@@ -627,7 +640,7 @@ int getFlightsBooked(struct http_request *req) {
 
         http_response_header(req, "content-type", "application/json");
 
-        http_response(req, 200, str->buffer, (
+        http_response(req, HTTP_STATUS_OK, str->buffer, (
                 unsigned) strlen(str->buffer));
 
         smart_string_destroy(str);

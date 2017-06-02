@@ -89,7 +89,7 @@ void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param);
 DatabaseResult getFlightWithExternalId(int externalId);
 void cancelFlight(int flightId);
 DatabaseResult getAllBookedFlights(int userId);
-void updateUserPassword(int userId, char *hashed_input);
+void updateUserPassword(int userId, char *hash, char * salt);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);

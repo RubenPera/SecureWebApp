@@ -138,27 +138,35 @@ var userInfoModel = Vue.component('modal', {
 
         changePassword: function () {
             this.validateNewPassword();
-            if(this.isValidPassword(this.UserInfo.ChangePass.new) === true) {
-                if (this.UserInfo.ChangePass.old && this.UserInfo.ChangePass.new) {
-                    this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old +
-                        '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
-                        console.log(response.status);
-                    if (response.ok) {
-                        // window.location.href = "/";
+            if(this.UserInfo.ChangePass.new === this.UserInfo.ChangePass.old){
+                this.UserInfo.ChangePass.error = 'New password cannot be the same as old password.';
+            } else {
+                if (this.isValidPassword(this.UserInfo.ChangePass.new) === true) {
+                    if (this.UserInfo.ChangePass.old && this.UserInfo.ChangePass.new) {
+                        this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old +
+                            '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
+                            console.log(response.status);
+                        if (response.ok) {
+
+                            this.UserInfo.ChangePass.old = "";
+                            this.UserInfo.ChangePass.new = "";
+                            this.UserInfo.ChangePass.error = "";
+                            this.UserInfo.showModal = false;
+                            alert('Password succesfully changed!');
+                        }
+                    },
+                        response =>
+                        {
+                            this.UserInfo.ChangePass.old = "";
+                            this.UserInfo.ChangePass.new = "";
+                            alert('Something went wrong, please try again later');
+                        }
+                    )
+                        ;
+                    } else {
+                        this.UserInfo.ChangePass.error = "No fields can be empty";
 
                     }
-                },
-                    response =>
-                    {
-                        this.UserInfo.ChangePass.old = "";
-                        this.UserInfo.ChangePass.new = "";
-                        this.UserInfo.ChangePass.error = "The provided credentials are incorrect!";
-                    }
-                )
-                    ;
-                } else {
-                    this.UserInfo.ChangePass.error = "No fields can be empty";
-
                 }
             }
         },
@@ -206,6 +214,7 @@ var userInfoModel = Vue.component('modal', {
                     this.FlightOverView.showModal = false;
                     this.loadFlights();
                     this.loadLinks();
+                    alert('Flight succsfully booked!');
                 },
             response => {
                 alert('Something went wrong, try again later');
