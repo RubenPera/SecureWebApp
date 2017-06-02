@@ -30,6 +30,8 @@
 #define null NULL
 #define STRING_SIZE 256
 #define adminRole 1
+#include <regex.h>
+#include <pcre.h>
 
 // DatabaseResult.c
 typedef struct
@@ -87,6 +89,7 @@ void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param);
 DatabaseResult getFlightWithExternalId(int externalId);
 void cancelFlight(int flightId);
 DatabaseResult getAllBookedFlights(int userId);
+void updateUserPassword(int userId, char *hashed_input);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);

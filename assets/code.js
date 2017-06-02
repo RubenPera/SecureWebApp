@@ -2,15 +2,15 @@
  * Created by ruben on 5/31/17.
  */
 
-Vue.component('modal', {
-    template: '#flightOverView-modal-template'
-})
+var flightOverviewModal = Vue.component('modal', {
+    template: '#popup-model'
+});
 
-Vue.component('modal', {
-    template: '#userinfo-modal-template'
-})
+var userInfoModel = Vue.component('modal', {
+    template: '#popup-model'
+});
 
-$(document).ready(new Vue({
+    new Vue({
     el: '#masterPage',
     data: {
         Links: [],
@@ -76,6 +76,7 @@ $(document).ready(new Vue({
         this.loadFlights();
         this.loadUser();
         this.adminLoadUsers();
+
     },
     methods: {
         loadLinks: function () {
@@ -101,8 +102,8 @@ $(document).ready(new Vue({
         },
 
         isValidLoginEmail: function () {
-            var re = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/;
-            return re.test(this.login.email);
+            var regex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/;
+            return regex.test(this.login.email);
         },
 
         loginUser: function () {
@@ -123,25 +124,42 @@ $(document).ready(new Vue({
 
             }
         },
+        isValidPassword: function(password){
+            var regex = /^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*d)(?=.*[!$%&? ])(?=.*[A-Z]).*$/;
+            return regex.test(password);
+        },
+        validateNewPassword: function(){
+            if (this.isValidPassword(this.UserInfo.ChangePass.new) === false) {
+                    this.UserInfo.ChangePass.error = 'The provided password does not conform to our password requirements.';
+                } else {
+                    this.UserInfo.ChangePass.error = '';
+                }
+        },
 
         changePassword: function () {
-            if (this.UserInfo.ChangePass.old && this.UserInfo.ChangePass.new) {
-                this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old +
-                    '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
+            this.validateNewPassword();
+            if(this.isValidPassword(this.UserInfo.ChangePass.new) === true) {
+                if (this.UserInfo.ChangePass.old && this.UserInfo.ChangePass.new) {
+                    this.$http.post('/changePassword', 'oldpassword=' + this.UserInfo.ChangePass.old +
+                        '&newpassword=' + this.UserInfo.ChangePass.new).then(response => {
                         console.log(response.status);
-                        if (response.ok) {
-                            window.location.href = "/";
+                    if (response.ok) {
+                        // window.location.href = "/";
 
-                        }
-                    },
-                    response => {
+                    }
+                },
+                    response =>
+                    {
                         this.UserInfo.ChangePass.old = "";
                         this.UserInfo.ChangePass.new = "";
                         this.UserInfo.ChangePass.error = "The provided credentials are incorrect!";
-                    });
-            } else {
-                this.UserInfo.ChangePass.error = "No fields can be empty";
+                    }
+                )
+                    ;
+                } else {
+                    this.UserInfo.ChangePass.error = "No fields can be empty";
 
+                }
             }
         },
 
@@ -240,4 +258,4 @@ $(document).ready(new Vue({
             }
         }
     },
-}));
+});

@@ -14,8 +14,16 @@
             <div slot="body">
                 <label>Old Password</label> <input type="password" placeholder="Password" v-model="UserInfo.ChangePass.old"
                     class="form-control">
-                <label>New Password</label> <input type="password" placeholder="Password" v-model="UserInfo.ChangePass.new"
+                <label>New Password</label> <input v-on:change="validateNewPassword()" type="password" placeholder="Password" v-model="UserInfo.ChangePass.new"
                     class="form-control">
+                <label>The password should confirm to the following requirements</label>
+                <ul>
+                    <li>More than 12 characters</li>
+                    <li>Contain a upper and lowercase character</li>
+                    <li>Contain a number</li>
+                    <li>Contain 2 of the following special characters: "!#$%&? "</li>
+
+                </ul>
             </div>
 
             <div slot="footer">
@@ -89,33 +97,33 @@
 </div>
 
 
-<!-- template for the modal component -->
-<script type="text/x-template" id="userinfo-modal-template">
-    <transition name="modal">
-        <div class="modal-mask">
-            <div class="modal-wrapper">
-                <div class="modal-container">
+<!--&lt;!&ndash; template for the modal component &ndash;&gt;-->
+<!--<script type="text/x-template" id="userinfo-modal-template">-->
+    <!--<transition name="modal2">-->
+        <!--<div class="modal-mask">-->
+            <!--<div class="modal-wrapper">-->
+                <!--<div class="modal-container">-->
 
-                    <div class="modal-header">
-                        <slot name="header">
-                            default header
-                        </slot>
-                    </div>
+                    <!--<div class="modal-header">-->
+                        <!--<slot name="header">-->
+                            <!--default header-->
+                        <!--</slot>-->
+                    <!--</div>-->
 
-                    <div class="modal-body">
-                        <slot name="body">
-                            defualt body
-                        </slot>
-                    </div>
+                    <!--<div class="modal-body">-->
+                        <!--<slot name="body">-->
+                            <!--defualt body-->
+                        <!--</slot>-->
+                    <!--</div>-->
 
-                    <div class="modal-footer">
-                        <slot name="footer">
-                            defualt footer
-                            <button class="modal-default-button" @click="$emit('close')"> Cancel </button>
-                        </slot>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </transition>
-</script>
+                    <!--<div class="modal-footer">-->
+                        <!--<slot name="footer">-->
+                            <!--defualt footer-->
+                            <!--<button class="modal-default-button" @click="$emit('close')"> Cancel </button>-->
+                        <!--</slot>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</transition>-->
+<!--</script>-->

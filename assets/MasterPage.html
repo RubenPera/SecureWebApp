@@ -67,6 +67,37 @@
 
 </div>
 <script src="/js/code.js"></script>
+
+<!-- template for the modal component -->
+<script type="text/x-template" id="popup-model">
+    <transition name="modal">
+        <div class="modal-mask">
+            <div class="modal-wrapper">
+                <div class="modal-container">
+
+                    <div class="modal-header">
+                        <slot name="header">
+                            default header
+                        </slot>
+                    </div>
+
+                    <div class="modal-body">
+                        <slot name="body">
+                            defualt body
+                        </slot>
+                    </div>
+
+                    <div class="modal-footer">
+                        <slot name="footer">
+                            defualt footer
+                            <button class="modal-default-button" @click="$emit('close')"> Cancel </button>
+                        </slot>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>
 </body>
 
 </html>

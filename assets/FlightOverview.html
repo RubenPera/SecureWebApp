@@ -16,6 +16,7 @@
       <modal v-if="FlightOverView.showModal" @close="FlightOverView.showModal = false">
         <h3 slot="header">Flight Information</h3>
         <div slot="body">
+          Id: {{FlightOverView.FlightItem.external_id}} <br>
           From: {{FlightOverView.FlightItem.flight_source}}<br> To: {{FlightOverView.FlightItem.flight_destination}}<br> Date: {{FlightOverView.FlightItem.date}}<br>          AirMiles: {{FlightOverView.FlightItem.price}}<br>
         </div>
 
@@ -58,33 +59,3 @@
 
   </div>
 
-<!-- template for the modal component -->
-<script type="text/x-template" id="flightOverView-modal-template">
-  <transition name="modal">
-    <div class="modal-mask">
-      <div class="modal-wrapper">
-        <div class="modal-container">
-
-          <div class="modal-header">
-            <slot name="header">
-              default header
-            </slot>
-          </div>
-
-          <div class="modal-body">
-            <slot name="body">
-              defualt body
-            </slot>
-          </div>
-
-          <div class="modal-footer">
-            <slot name="footer">
-              defualt footer
-              <button class="modal-default-button" @click="$emit('close')"> Cancel </button>
-            </slot>
-          </div>
-        </div>
-      </div>
-    </div>
-  </transition>
-</script>

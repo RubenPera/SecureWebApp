@@ -51,6 +51,7 @@ void login_hash_password(const char *pass, const unsigned char *salt, int32_t it
                          char *hexResult) //hashes the password using PBKDF2 sha512
 {
     unsigned char digest[outputBytes];
+
     PKCS5_PBKDF2_HMAC(pass, strlen(pass), salt, strlen((const char *)salt), iterations, EVP_sha512(), outputBytes, digest);
     hax_encode((char *)digest, sizeof(digest), hexResult);
 }
@@ -58,11 +59,18 @@ void login_hash_password(const char *pass, const unsigned char *salt, int32_t it
 bool login_validate_password(const char *input_password, const char *hash, const unsigned char *salt) //compares input password to password in database
 {
     char backup[STRING_SIZE + 1];
+    struct kore_buf * buffer;
+    buffer = kore_buf_alloc(STRING_SIZE + 1);
+    kore_buf_append(buffer, salt, STRING_SIZE + 1);
+
     strcpy(backup, hash);
     uint64_t start = time_now();        //get the starttime of the function in microseconds
     char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
-    kore_log(2, "salt = %s", salt);
-    login_hash_password(input_password, salt, LOGIN_HASH_ITERATIONS, STRING_SIZE/2,
+    hashed_input[STRING_SIZE] = null;
+
+    kore_log(2, "pass = %s , salt = %s",input_password, salt);
+
+    login_hash_password(input_password, buffer->data, LOGIN_HASH_ITERATIONS, STRING_SIZE/2,
                         hashed_input); //hash the password input by the user with the salt in the database
     int correct = 0;
 
@@ -89,6 +97,7 @@ uint64_t time_now(void) {
 
 void *login_generate_salt(int length, char * output_buffer) //generates the salt using /dev/urandom
 {
+    length = length / 2;
     char buffer[length]; //create the buffer for the random data
     generate_random(buffer, length); //get the random data
     hax_encode(buffer, length, output_buffer);

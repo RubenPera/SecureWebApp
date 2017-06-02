@@ -58,7 +58,7 @@ int login(struct http_request *req) {
 
                 bool isAuthenticated = login_validate_password(login_password_param,
                                                                get_DatabaseResult(dbResult, 0, 2),
-                                                               get_DatabaseResult(dbResult, 0, 1));
+                                                               (unsigned char *) get_DatabaseResult(dbResult, 0, 1));
                 if (!isAuthenticated) {
                     http_response(req, HTTP_STATUS_FORBIDDEN, NULL, NULL);
                     return (KORE_RESULT_OK);
@@ -176,8 +176,8 @@ int getLinks(struct http_request *req) {
 
             if (role == adminRole) {
                 // admin
-                char *texts[] = {"Flights", "Admin - Users", "Admin - Flights", "Logout"};
-                char *links[] = {"flightOverView", "adminUsers", "adminFlightOverView", "logout"};
+                char *texts[] = {"Flights", "Admin - Users", "Admin - Flights", "User Info", "Logout"};
+                char *links[] = {"flightOverView", "adminUsers", "adminFlightOverView", "userInfo", "logout"};
                 fillLinks(container, (sizeof(texts) / sizeof(char *)), texts, (sizeof(links) / sizeof(char *)), links);
             } else {
                 // normal user
@@ -269,8 +269,53 @@ int adminCancelFlightWithId(struct http_request *req) {
     return (KORE_RESULT_OK);
 }
 
-validate_password_regex() {
-    // ^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&? "])(?=.*[A-Z]).*$
+int validate_password_regex(struct http_request *req, char *data) {
+    int result = KORE_RESULT_ERROR;
+    pcre *reCompiled;
+    pcre_extra *pcreExtra;
+    int pcreExecRet;
+    int subStrVec[30];
+    const char *pcreErrorStr;
+    int pcreErrorOffset;
+    char *aStrRegex;
+    char **aLineToMatch;
+    char *testStrings[] = {data};
+
+    aStrRegex = "^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!#$%&? \"])(?=.*[A-Z]).*$";
+
+    // First, the regex string must be compiled.
+    reCompiled = pcre_compile(aStrRegex, 0, &pcreErrorStr, &pcreErrorOffset, NULL);
+
+    if (reCompiled == NULL) {
+        kore_log(2, "ERROR: Could not compile '%s': %s\n", aStrRegex, pcreErrorStr);
+        return result;
+    } /* end if */
+
+    // Optimize the regex
+    pcreExtra = pcre_study(reCompiled, 0, &pcreErrorStr);
+
+
+    for (aLineToMatch = testStrings; *aLineToMatch != NULL; aLineToMatch++) {
+        pcreExecRet = pcre_exec(reCompiled,
+                                pcreExtra,
+                                *aLineToMatch,
+                                strlen(*aLineToMatch),  // length of string
+                                0,                      // Start looking at this point
+                                0,                      // OPTIONS
+                                subStrVec,
+                                30);                    // Length of subStrVec
+        if (pcreExecRet < 0) { // Something bad happened..
+            result = (KORE_RESULT_ERROR);
+        } else {
+            result = (KORE_RESULT_OK);
+
+        }  /* end if/else */
+    }
+    kore_log(2, "password is valid %d", result);
+    // Free up the regular expression.
+    pcre_free(reCompiled);
+    return result;
+
 }
 
 // Returns the Login page
@@ -497,13 +542,15 @@ int changePassword(struct http_request *req) {
     int userId = getLoggedInUser(req);
     if (userId) {
         DatabaseResult userdbResult = getUserWithId(userId);
-
+        kore_log(2, "userid = %d", userId);
         http_populate_post(req);
 
         if (KORE_RESULT_OK == http_argument_get_string(req, "oldpassword", &old_password) &&
             KORE_RESULT_OK == http_argument_get_string(req, "newpassword", &new_password)) {
+            kore_log(2, "received password");
             DatabaseResult dbResult;
             dbResult = getIdSaltHashWithEmail(get_DatabaseResult(userdbResult, 0, db_user_email));
+
 
             bool isAuthenticated = login_validate_password(old_password, get_DatabaseResult(dbResult, 0, 2),
                                                            get_DatabaseResult(dbResult, 0, 1));
@@ -512,25 +559,33 @@ int changePassword(struct http_request *req) {
                 return (KORE_RESULT_OK);
             } else {
                 char hashed_input[STRING_SIZE + 1]; //buffer for the hash function
-                login_hash_password(new_password, get_DatabaseResult(dbResult, 0, 1), LOGIN_HASH_ITERATIONS,
+                hashed_input[STRING_SIZE] = null;
+                char salt[STRING_SIZE + 1];
+                salt[STRING_SIZE] = null;
+                login_generate_salt(STRING_SIZE, salt);
+                kore_log(2, "new password = %s", new_password);
+
+                login_hash_password(new_password, salt, LOGIN_HASH_ITERATIONS,
                                     STRING_SIZE / 2,
                                     hashed_input); //hash the password input by the user with the salt in the database
+                kore_log(2, "new hash = %s   new salt = %s", hashed_input, salt);
 
-                updateUserPassword(userId, hashed_input);
-                http_response(req, 200, "Password changed", strlen("Password changed"));
+//                updateUserPassword(userId, hashed_input);
+                http_response(req, 200, null, 0);
                 return (KORE_RESULT_OK);
             }
         }
     } else {
         http_response(req, 401, "Unauthorized", (unsigned) strlen("Unauthorized"));
         kore_log(2, "Unauthorized User Access");
-        return login(req);
+        return (KORE_RESULT_OK);
     }
 }
 
 int getFlightsBooked(struct http_request *req) {
     int userId = getLoggedInUser(req);
     if (userId) {
+
         DatabaseResult newDbResult = getAllBookedFlights(userId);
         SmartString *str = smart_string_new();
         /*Creating a json object*/
