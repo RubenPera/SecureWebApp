@@ -5,8 +5,8 @@
 void _dbConnect(MYSQL *conn)
 {
     char *server = "127.0.0.1";
-    char *user = "root";
-    char *password = "TeamAlfa1!"; /* set me first */
+    char *user = "alfa";
+    char *password = "gktuktilhylvjgrkrbit#oothitkv764764754"; /* set me first */
     char *database = "secure_web_app_database";
     unsigned int port = 3306;
 

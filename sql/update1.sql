@@ -143,3 +143,14 @@ create procedure update_password_for_userId(in userId int, in newHash varchar(25
 		where user.id = userId;
 	end //
 delimiter ;
+
+RENAME USER 'root'@'127.0.0.1' TO 'yaboi'@'127.0.0.1';
+
+SET PASSWORD FOR 'yaboi'@'localhost' = PASSWORD('Mypass#12441');
+
+
+CREATE USER 'alfa'@'localhost'
+  IDENTIFIED BY 'gktuktilhylvjgrkrbit#oothitkv764764754';
+GRANT ALL ON secure_web_app_database.* TO 'alfa'@'localhost';
+
+INSERT INTO user VALUES (NULL, '67cffa2b2a81173549652265667378fc6e0625d0270478fcea23964216c73266e6c1d24b7360bacdc9f2fc3859cd12b5a582559774032cc75a474acb127f1d7fcb8a92156db1ede5a62fa9f88a74c6575648c42e514dfef7c0ec97806f6adfdfb942ba742b1481708d5f13500a268f83d6663137bc1097a1c9e0079b46d87332', 'd890fa0a6034ab0f1ae82f6a73113a9444f08eb3f90e3849752e9d622352c226562336310807525638cdc33cfabeb741050b5cb01e8ca38ba337b18b6b7acb658001aaa5d40a106e8d154f45cbabc0b98009b7fb5184a1bae8d2ccaeb8a658b185ae6f848f02d3227826bbffe1d94d279c16883a95eca5e93488fda16a783d6a', 'gump@gmail.com', '18200', '1');
