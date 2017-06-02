@@ -31,6 +31,7 @@
           <table class="table">
             <thead>
               <tr>
+                <th>Flight Id</th>
                 <th>Departure</th>
                 <th>Destination</th>
                 <th>Date</th>
@@ -41,6 +42,7 @@
             </thead>
             <tbody>
               <tr v-for="flight in tableFilter">
+                <td>{{flight.external_id}}</td>
                 <td>{{flight.flight_source}}</td>
                 <td>{{flight.flight_destination}}</td>
                 <td>{{flight.date}}</td>

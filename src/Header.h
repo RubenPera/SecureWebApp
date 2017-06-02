@@ -47,6 +47,7 @@ int bookFlight(struct http_request *);
 int flightOverView(struct http_request *);
 int showLoginPage(struct http_request *req);
 void fillLinks(json_object *container, int sizeTexts, char *texts[sizeTexts], int sizeLinks, char *links[sizeLinks]);
+bool isAdmin(struct http_request *req);
 
 
 // Cookie.c
@@ -83,6 +84,9 @@ void fillOutputBindDate(MYSQL_BIND *bind, unsigned int i, MYSQL_TIME *param, my_
                         my_bool *error) ;
 void fillInputBindString(MYSQL_BIND *bind, unsigned int i, char ** param, unsigned long *length);
 void fillInputBindLong(MYSQL_BIND *bind, unsigned int i, int *param);
+DatabaseResult getFlightWithExternalId(int externalId);
+void cancelFlight(int flightId);
+DatabaseResult getAllBookedFlights(int userId);
 
 // DatabaseResult.c
 DatabaseResult init_DatabaseResult(unsigned int rows, unsigned int columns);

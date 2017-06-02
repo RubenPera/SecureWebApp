@@ -206,3 +206,14 @@ create procedure get_flight_by_id(in flightId int)
         where id = flightId;
 	end //
 delimiter ;
+
+
+delimiter //
+create procedure get_booked_flights_by_userId(in userId int)
+	begin
+		select flight.id, flight.date, flight.price, flight.flight_source, flight.flight_destination, flight.capacity, flight.external_id
+        from flight
+		INNER JOIN booking ON booking.flight_id = flight.id
+        where booking.user_id = userId;
+	end //
+delimiter ;
