@@ -133,3 +133,13 @@ create procedure update_password_for_userId(in userId int, in newHash varchar(25
 		where user.id = userId;
 	end //
 delimiter ;
+drop procedure update_password_for_userId;
+delimiter //
+create procedure update_password_for_userId(in userId int, in newHash varchar(257), in newSalt varchar(257))
+	begin
+		update user
+		set user.pasword_hash  = newhash,
+			user.pasword_salt = newSalt
+		where user.id = userId;
+	end //
+delimiter ;

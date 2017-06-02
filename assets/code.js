@@ -112,6 +112,8 @@ var userInfoModel = Vue.component('modal', {
                     console.log(response.status);
                     if (response.ok) {
                         window.location.href = "/";
+                        this.loadLinks();
+                        
 
                     }
                 },
@@ -125,7 +127,7 @@ var userInfoModel = Vue.component('modal', {
             }
         },
         isValidPassword: function(password){
-            var regex = /^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*d)(?=.*[!$%&? ])(?=.*[A-Z]).*$/;
+            var regex = /^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!$%&? ])(?=.*[A-Z]).*$/;
             return regex.test(password);
         },
         validateNewPassword: function(){
