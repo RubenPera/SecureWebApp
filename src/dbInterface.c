@@ -5,8 +5,8 @@
 void _dbConnect(MYSQL *conn)
 {
     char *server = "127.0.0.1";
-    char *user = "alfa";
-    char *password = "gktuktilhylvjgrkrbit#oothitkv764764754"; /* set me first */
+    char *user = "alpha";
+    char *password = "TeamAlfa1!"; /* set me first */
     char *database = "secure_web_app_database";
     unsigned int port = 3306;
 
@@ -641,7 +641,7 @@ int getUserIdWithSession(char sessionId[STRING_SIZE - 1])
     }
 
     mysql_stmt_fetch(stmt);
-    kore_log(2, "returning %d", userId);
+    //kore_log(2, "returning %d", userId);
     _dbDisconnect(conn);
     if (!is_null[0])
     {
@@ -1293,8 +1293,8 @@ DatabaseResult getAllBookedFlights(int userId)
         kore_log(1, "mysql_stmt_init out of memory");
     }
 
-    kore_log(2, query);
-    kore_log(2, "%d", userId);
+    //kore_log(2, query);
+    //kore_log(2, "%d", userId);
 
     if (mysql_stmt_prepare(stmt, query, strlen(query)))
     {

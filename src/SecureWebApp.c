@@ -210,7 +210,7 @@ int getLinks(struct http_request *req)
                 char *links[] = {"flightOverView", "logout", "userInfo"};
                 fillLinks(container, (sizeof(texts) / sizeof(char *)), texts, (sizeof(links) / sizeof(char *)), links);
             }
-            kore_log(2, "return value = %s", json_object_to_json_string(container));
+            //kore_log(2, "return value = %s", json_object_to_json_string(container));
             smart_string_append(str, json_object_to_json_string(container));
 
             http_response_header(req, "content-type", "application/json");
@@ -323,7 +323,7 @@ int validate_password_regex(struct http_request *req, char *data)
     char **aLineToMatch;
     char *testStrings[] = {data};
 
-    kore_log(2, "data = %s", data);
+    //kore_log(2, "data = %s", data);
     aStrRegex = "^.*(?=.{12,})(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!#$%&? \"])(?=.*[A-Z]).*$";
 
     // First, the regex string must be compiled.
@@ -361,7 +361,7 @@ int validate_password_regex(struct http_request *req, char *data)
         } /* end if/else */
         kore_log(2, "optimized");
     }
-    kore_log(2, "password is valid %d", result);
+    //kore_log(2, "password is valid %d", result);
     // Free up the regular expression.
     pcre_free(reCompiled);
     return result;
@@ -618,14 +618,14 @@ int changePassword(struct http_request *req)
     if (userId)
     {
         DatabaseResult userdbResult = getUserWithId(userId);
-        kore_log(2, "userid = %d", userId);
+        //kore_log(2, "userid = %d", userId);
         http_populate_post(req);
 
         if (KORE_RESULT_OK == http_argument_get_string(req, "oldpassword", &old_password) &&
             KORE_RESULT_OK == http_argument_get_string(req, "newpassword", &new_password))
         {
 
-            kore_log(2, "received password");
+            //kore_log(2, "received password");
             if (strcmp(old_password, new_password) == 0)
             {
                 http_response(req,200,NULL,NULL);
@@ -636,7 +636,7 @@ int changePassword(struct http_request *req)
             dbResult = getIdSaltHashWithEmail(get_DatabaseResult(userdbResult, 0, db_user_email));
             bool isAuthenticated = login_validate_password(old_password, get_DatabaseResult(dbResult, 0, 2),
                                                            get_DatabaseResult(dbResult, 0, 1));
-            kore_log(2, "old = %s, new = %s", old_password, new_password);
+            //kore_log(2, "old = %s, new = %s", old_password, new_password);
             if (!isAuthenticated)
             {
                 kore_log(2, "not authenticated");
@@ -651,7 +651,7 @@ int changePassword(struct http_request *req)
                 char salt[STRING_SIZE + 1];
                 salt[STRING_SIZE] = null;
                 login_generate_salt(STRING_SIZE, salt);
-                kore_log(2, "new password = %s", new_password);
+                //kore_log(2, "new password = %s", new_password);
 
                 login_hash_password(new_password, salt, LOGIN_HASH_ITERATIONS,
                                     STRING_SIZE / 2,
